@@ -5,10 +5,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 
 @RestController
-public class TestController{
-    @GetMapping("/")
-    public String home() {
+public class UserController{
+    @GetMapping("/user")
+    public String postUser() {
         return "OMG HI!";
+    }
+
+    @GetMapping("/user/{username}")
+    public String patchUser() {
+        return "/user/{username} (PATCH)";
     }
     
 }
