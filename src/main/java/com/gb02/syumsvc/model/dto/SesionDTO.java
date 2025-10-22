@@ -1,4 +1,4 @@
-package com.gb02.syumsvc.dto;
+package com.gb02.syumsvc.model.dto;
 
 import java.util.Date;
 
