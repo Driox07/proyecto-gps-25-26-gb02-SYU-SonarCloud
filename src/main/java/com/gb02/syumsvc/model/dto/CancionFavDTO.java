@@ -1,6 +1,6 @@
-package com.gb02.syumsvc.dto;
+package com.gb02.syumsvc.model.dto;
 
-public class CancionFav {
+public class CancionFavDTO {
     private int idCancion;
     private int idUsuario;
 

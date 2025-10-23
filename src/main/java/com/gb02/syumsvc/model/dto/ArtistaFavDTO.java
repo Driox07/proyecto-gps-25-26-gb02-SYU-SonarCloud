@@ -1,6 +1,6 @@
-package com.gb02.syumsvc.dto;
+package com.gb02.syumsvc.model.dto;
 
-public class ArtistaFav {
+public class ArtistaFavDTO {
     private int idArtista;
     private int idUsuario;
 
@@ -15,7 +15,7 @@ public class ArtistaFav {
     public int getIdUsuario() {
         return idUsuario;
     }
-    
+
     public void setIdUsuario(int idUsuario) {
         this.idUsuario = idUsuario;
     }

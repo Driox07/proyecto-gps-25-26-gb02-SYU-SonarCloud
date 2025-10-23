@@ -1,4 +1,4 @@
-package com.gb02.syumsvc.dto;
+package com.gb02.syumsvc.model.dto;
 
 import java.util.Date;
 
@@ -12,7 +12,7 @@ public class UsuarioDTO {
     private String email;
     private String contrasena;
     private int idArtista;
-    
+
     public int getIdUsuario() {
         return idUsuario;
     }
