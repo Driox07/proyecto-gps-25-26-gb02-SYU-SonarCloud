@@ -6,7 +6,7 @@ public interface SesionDAO {
     public SesionDTO[] obtainSesiones();
     public SesionDTO obtainSesion(int idSesion);
     public SesionDTO obtainSesion(String token);
-    public boolean inserSesion(SesionDTO sesion);
+    public boolean insertSesion(SesionDTO sesion);
     public boolean modifySesion(int idSesion, SesionDTO sesion);
     public boolean deleteSesion(int idSesion);
 }

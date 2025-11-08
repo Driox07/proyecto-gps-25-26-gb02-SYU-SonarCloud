@@ -1,6 +1,6 @@
 package com.gb02.syumsvc.model.dto;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class UsuarioDTO {
     private int idUsuario;
