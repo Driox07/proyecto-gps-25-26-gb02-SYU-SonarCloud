@@ -21,9 +21,8 @@ import com.gb02.syumsvc.model.dto.AlbumFavDTO;
 public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
     @Override
     public AlbumFavDTO[] obtainAlbumFavByUser(int idUsuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM AlbumesFav WHERE idUsuario = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM AlbumesFav WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
@@ -38,16 +37,15 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining albumes fav by idUsuario (PostgresqlAlbumFavDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             return new AlbumFavDTO[0];
         }
     }
 
     @Override
     public AlbumFavDTO[] obtainAlbumFavByAlbum(int idAlbum) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM AlbumesFav WHERE idAlbum = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM AlbumesFav WHERE idAlbum = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idAlbum);
             ResultSet rset = ps.executeQuery();
@@ -62,16 +60,15 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining album fav by idAlbum (PostgresqlAlbumFavDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             return new AlbumFavDTO[0];
         }
     }
 
     @Override
     public AlbumFavDTO[] obtainAlbumFav() {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM AlbumesFav";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM AlbumesFav";
             Statement s = connection.createStatement();
             ResultSet rset = s.executeQuery(query);
             ArrayList<AlbumFavDTO> results = new ArrayList<>();
@@ -85,16 +82,15 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining all album fav (PostgresqlAlbumFavDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             return new AlbumFavDTO[0];
         }
     }
 
     @Override
     public AlbumFavDTO obtainAlbumFav(int idAlbum, int idUsuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM AlbumesFav WHERE idAlbum = ? AND idUsuario = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM AlbumesFav WHERE idAlbum = ? AND idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idAlbum);
             ps.setInt(2, idUsuario);
@@ -109,16 +105,15 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining album fav (PostgresqlAlbumFavDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             return null;
         }
     }
 
     @Override
     public boolean insertAlbumFav(AlbumFavDTO albumFav) throws FavAlreadyExistsException, UnexpectedErrorException {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "INSERT INTO AlbumesFav (idAlbum, idUsuario) VALUES (?, ?)";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "INSERT INTO AlbumesFav (idAlbum, idUsuario) VALUES (?, ?)";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, albumFav.getIdAlbum());
             ps.setInt(2, albumFav.getIdUsuario());
@@ -132,21 +127,20 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
                 throw new FavAlreadyExistsException("Album " + albumFav.getIdAlbum() + " is already favorited by user " + albumFav.getIdUsuario());
             }
             System.err.println("PostgreSQL error inserting album fav: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error inserting album fav: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Error inserting album fav (PostgresqlAlbumFavDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error inserting album fav: " + e.getMessage());
         }
     }
 
     @Override
     public boolean deleteAlbumFav(int idAlbum, int idUsuario) throws FavNotFoundException, UnexpectedErrorException {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "DELETE FROM AlbumesFav WHERE idAlbum = ? AND idUsuario = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "DELETE FROM AlbumesFav WHERE idAlbum = ? AND idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idAlbum);
             ps.setInt(2, idUsuario);
@@ -160,7 +154,7 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
         } catch (Exception e) {
             System.err.println("Error deleting album fav (PostgresqlAlbumFavDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error deleting album fav: " + e.getMessage());
         }
     }

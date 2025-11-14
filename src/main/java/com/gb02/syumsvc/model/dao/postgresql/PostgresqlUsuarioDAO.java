@@ -49,9 +49,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO[] obtainUsuarios() {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM Usuarios";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM Usuarios";
             Statement statement = connection.createStatement();
             ResultSet rset = statement.executeQuery(query);
             ArrayList<UsuarioDTO> results = new ArrayList<>();
@@ -62,7 +61,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining usuarios (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             return new UsuarioDTO[0];
         }
     }
@@ -77,9 +76,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO obtainUsuario(int idUsuario) throws UserNotFoundException, UnexpectedErrorException {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM Usuarios WHERE idUsuario = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM Usuarios WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
@@ -93,7 +91,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining usuario by idUsuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
         }
     }
@@ -108,9 +106,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO obtainUsuarioByNick(String nick) throws UserNotFoundException, UnexpectedErrorException {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM Usuarios WHERE nick = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM Usuarios WHERE nick = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, nick);
             ResultSet rset = ps.executeQuery();
@@ -124,7 +121,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining usuario by nick (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
         }
     }
@@ -139,9 +136,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO obtainUsuarioByMail(String mail) throws UserNotFoundException, UnexpectedErrorException {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM Usuarios WHERE email = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM Usuarios WHERE email = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, mail);
             ResultSet rset = ps.executeQuery();
@@ -155,7 +151,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         } catch (Exception e) {
             System.err.println("Error obtaining usuario by email (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
         }
     }
@@ -171,9 +167,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public int insertUsuario(UsuarioDTO usuario) throws UnexpectedErrorException, DupedUsernameException, DupedEmailException {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista) VALUES (?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, usuario.getNick());
             ps.setString(2, usuario.getNombre());
@@ -210,12 +205,12 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
                 }
             }
             System.err.println("PostgreSQL error inserting usuario: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error inserting usuario: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Error inserting usuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error inserting usuario: " + e.getMessage());
         }
     }
@@ -229,9 +224,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public boolean modifyUsuario(int idUsuario, UsuarioDTO usuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, fechaReg = ?, email = ?, contrasena = ?, idArtista = ? WHERE idUsuario = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, fechaReg = ?, email = ?, contrasena = ?, idArtista = ? WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, usuario.getNick());
             ps.setString(2, usuario.getNombre());
@@ -247,7 +241,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         } catch (Exception e) {
             System.err.println("Error modifying usuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             return false;
         }
     }
@@ -262,9 +256,8 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public boolean deleteUsuario(int idUsuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "DELETE FROM Usuarios WHERE idUsuario = ?";
-        try {
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "DELETE FROM Usuarios WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             int rows = ps.executeUpdate();
@@ -275,7 +268,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         } catch (Exception e) {
             System.err.println("Error deleting usuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
-            e.printStackTrace();
+            
             throw new UnexpectedErrorException("Unexpected error deleting usuario: " + e.getMessage());
         }
     }

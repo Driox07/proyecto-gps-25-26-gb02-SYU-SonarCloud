@@ -1,8 +1,10 @@
 package com.gb02.syumsvc.model;
 
-import com.gb02.syumsvc.model.factory.TransactionFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.gb02.syumsvc.model.factory.DAOFactory;
-import com.gb02.syumsvc.model.dao.postgresql.PostgresqlTransactionFactory;
+import com.gb02.syumsvc.model.dao.postgresql.PostgresqlDAOFactory;
 import com.gb02.syumsvc.exceptions.DupedEmailException;
 import com.gb02.syumsvc.exceptions.DupedUsernameException;
 import com.gb02.syumsvc.exceptions.FavAlreadyExistsException;
@@ -12,17 +14,16 @@ import com.gb02.syumsvc.exceptions.SessionNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
 import com.gb02.syumsvc.exceptions.UserNotFoundException;
 import com.gb02.syumsvc.model.dao.UsuarioDAO;
-import com.gb02.syumsvc.model.dao.postgresql.PostgresqlDAOFactory;
 import com.gb02.syumsvc.model.dto.AlbumFavDTO;
 import com.gb02.syumsvc.model.dto.ArtistaFavDTO;
 import com.gb02.syumsvc.model.dto.CancionFavDTO;
 import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
 
+@Service
 public class Model {
     
     private static Model model = null;
-    TransactionFactory tf;
     DAOFactory df;
     
     public static Model getModel(){
@@ -33,13 +34,20 @@ public class Model {
     }
 
     public Model() {
-        tf = new PostgresqlTransactionFactory();
         df = new PostgresqlDAOFactory();
     }
 
+    @Transactional
     public UsuarioDTO registrarUsuario(UsuarioDTO usuario) throws DupedEmailException, DupedUsernameException, UnexpectedErrorException {
         try {
-            return tf.registrarUsuario(usuario);
+            UsuarioDAO usuarioDao = df.getUsuarioDao();
+            int idRegistrado = usuarioDao.insertUsuario(usuario);
+            UsuarioDTO registrado = usuarioDao.obtainUsuario(idRegistrado);
+            if(registrado != null){
+                return registrado;
+            }
+            System.out.println("Error registering user.");
+            throw new UnexpectedErrorException("Unexpected error while registering user: couldn't recover registered user.");
         } catch (DupedEmailException e){
             throw e;
         } catch (DupedUsernameException e){
@@ -92,9 +100,10 @@ public class Model {
         }
     }
 
+    @Transactional
     public void insertarSesion(SesionDTO sesion) throws UnexpectedErrorException {
         try{
-            tf.crearSesion(sesion);
+            df.getSesionDao().insertSesion(sesion);
         } catch (UnexpectedErrorException e){
             System.out.println("Unexpected error in insertarSesion: " + e.getMessage());
             throw e;
@@ -121,6 +130,7 @@ public class Model {
         }
     }
 
+    @Transactional
     public boolean deleteSesion(int idSesion) throws UnexpectedErrorException, SessionNotFoundException {
         try{
             return df.getSesionDao().deleteSesion(idSesion);
@@ -134,6 +144,7 @@ public class Model {
         }
     }
 
+    @Transactional
     public boolean deleteUsuario(int idUsuario) throws UnexpectedErrorException, UserNotFoundException {
         try{
             return df.getUsuarioDao().deleteUsuario(idUsuario);
@@ -147,6 +158,7 @@ public class Model {
         }
     }
 
+    @Transactional
     public boolean updateUsuario(int idUsuario, UsuarioDTO usuario) throws UnexpectedErrorException, UserNotFoundException {
         try{
             return df.getUsuarioDao().modifyUsuario(idUsuario, usuario);
@@ -180,6 +192,7 @@ public class Model {
      * @throws FavAlreadyExistsException if the song is already favorited by the user
      * @throws UnexpectedErrorException if an unexpected error occurs
      */
+    @Transactional
     public boolean insertCancionFav(CancionFavDTO fav) throws FavAlreadyExistsException, UnexpectedErrorException {
         try {
             return df.getCancionFavDao().insertCancionFav(fav);
@@ -199,6 +212,7 @@ public class Model {
      * @throws FavNotFoundException if the song is not favorited by the user
      * @throws UnexpectedErrorException if an unexpected error occurs
      */
+    @Transactional
     public boolean deleteCancionFav(int idCancion, int idUsuario) throws FavNotFoundException, UnexpectedErrorException {
         try {
             return df.getCancionFavDao().deleteCancionFav(idCancion, idUsuario);
@@ -227,6 +241,7 @@ public class Model {
      * @throws FavAlreadyExistsException if the artist is already favorited by the user
      * @throws UnexpectedErrorException if an unexpected error occurs
      */
+    @Transactional
     public boolean insertArtistaFav(ArtistaFavDTO fav) throws FavAlreadyExistsException, UnexpectedErrorException {
         try {
             return df.getArtistaFavDao().insertArtistaFav(fav);
@@ -246,6 +261,7 @@ public class Model {
      * @throws FavNotFoundException if the artist is not favorited by the user
      * @throws UnexpectedErrorException if an unexpected error occurs
      */
+    @Transactional
     public boolean deleteArtistaFav(int idArtista, int idUsuario) throws FavNotFoundException, UnexpectedErrorException {
         try {
             return df.getArtistaFavDao().deleteArtistaFav(idArtista, idUsuario);
@@ -274,6 +290,7 @@ public class Model {
      * @throws FavAlreadyExistsException if the album is already favorited by the user
      * @throws UnexpectedErrorException if an unexpected error occurs
      */
+    @Transactional
     public boolean insertAlbumFav(AlbumFavDTO fav) throws FavAlreadyExistsException, UnexpectedErrorException {
         try {
             return df.getAlbumFavDao().insertAlbumFav(fav);
@@ -293,6 +310,7 @@ public class Model {
      * @throws FavNotFoundException if the album is not favorited by the user
      * @throws UnexpectedErrorException if an unexpected error occurs
      */
+    @Transactional
     public boolean deleteAlbumFav(int idAlbum, int idUsuario) throws FavNotFoundException, UnexpectedErrorException {
         try {
             return df.getAlbumFavDao().deleteAlbumFav(idAlbum, idUsuario);

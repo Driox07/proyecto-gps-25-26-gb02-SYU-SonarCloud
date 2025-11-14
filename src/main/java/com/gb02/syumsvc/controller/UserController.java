@@ -2,6 +2,7 @@ package com.gb02.syumsvc.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gb02.syumsvc.config.DebugConfig;
 import com.gb02.syumsvc.exceptions.SessionExpiredException;
 import com.gb02.syumsvc.exceptions.SessionNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
@@ -62,13 +63,14 @@ public class UserController {
             
             return ResponseEntity.ok().body(requestedUser.toMap());
         } catch (UserNotFoundException e) {
+            System.err.println("User not found: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error fetching user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching user data."));
         } catch (Exception e) {
             System.err.println("General error fetching user: " + e.getMessage());
-            e.printStackTrace();
+             
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching user data."));
         } 
     }
@@ -120,17 +122,20 @@ public class UserController {
 
             return ResponseEntity.ok().body(updatedUser.toMap());
         } catch (SessionNotFoundException e) {
+            System.err.println("Session not found during user update: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
         } catch (SessionExpiredException e) {
+            System.err.println("Session expired during user update: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
         } catch (UserNotFoundException e) {
+            System.err.println("User not found during update: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error updating user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
         } catch (Exception e) {
             System.err.println("Unexpected error updating user: " + e.getMessage());
-            e.printStackTrace();
+             
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
         } 
     }
@@ -157,17 +162,20 @@ public class UserController {
             Model.getModel().deleteUsuario(requestedUser.getIdUsuario());
             return ResponseEntity.ok().body(Response.getOnlyMessage("User deleted successfully."));
         } catch (UserNotFoundException e) {
+            System.err.println("User not found during deletion: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
         } catch (SessionNotFoundException e) {
+            System.err.println("Session not found during user deletion: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
         } catch (SessionExpiredException e) {
+            System.err.println("Session expired during user deletion: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error deleting user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while deleting user."));
         } catch (Exception e) {
             System.err.println("Unexpected error deleting user: " + e.getMessage());
-            e.printStackTrace();
+             
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while deleting user."));
         } 
     }

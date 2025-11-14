@@ -13,9 +13,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO[] obtainMerchFavByUser(int idUsuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM MerchFav WHERE idUsuario = ?";
-        try{
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM MerchFav WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
@@ -36,9 +35,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO[] obtainMerchFavByMerch(int idMerch) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM MerchFav WHERE idMerch = ?";
-        try{
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM MerchFav WHERE idMerch = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idMerch);
             ResultSet rset = ps.executeQuery();
@@ -59,9 +57,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO[] obtainMerchFav() {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM MerchFav";
-        try{
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM MerchFav";
             Statement s = connection.createStatement();
             ResultSet rset = s.executeQuery(query);
             ArrayList<MerchFavDTO> results = new ArrayList<>();
@@ -81,9 +78,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO obtainMerchFav(int idMerch, int idUsuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "SELECT * FROM MerchFav WHERE idMerch = ? AND idUsuario = ?";
-        try{
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "SELECT * FROM MerchFav WHERE idMerch = ? AND idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idMerch);
             ps.setInt(2, idUsuario);
@@ -105,9 +101,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
     @Override
     public boolean insertMerchFav(MerchFavDTO merchFav) {
         // TODO: Comprobación de integridad. ¿Existe el merch en el micro servicio TPP?
-        Connection connection = PostgresqlConnector.connect();
-        String query = "INSERT INTO MerchFav VALUES (?, ?)";
-        try{
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "INSERT INTO MerchFav VALUES (?, ?)";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, merchFav.getIdMerch());
             ps.setInt(2, merchFav.getIdUsuario());
@@ -122,9 +117,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public boolean deleteMerchFav(int idMerch, int idUsuario) {
-        Connection connection = PostgresqlConnector.connect();
-        String query = "DELETE FROM MerchFav WHERE idMerch = ? AND idUsuario = ?";
-        try{
+        try (Connection connection = PostgresqlConnector.getConnection()) {
+            String query = "DELETE FROM MerchFav WHERE idMerch = ? AND idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idMerch);
             ps.setInt(2, idUsuario);
