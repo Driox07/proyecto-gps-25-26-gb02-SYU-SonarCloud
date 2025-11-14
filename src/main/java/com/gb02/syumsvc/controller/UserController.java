@@ -21,51 +21,70 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
+/**
+ * REST controller for user management operations.
+ * Handles CRUD operations on user resources.
+ */
 @RestController
-public class UserController{
+public class UserController {
 
+    /**
+     * Retrieves user information by username (nick).
+     * Returns public data for non-authenticated users, full data for the user themselves.
+     * 
+     * @param nick Username to retrieve
+     * @param sessionToken Optional session token from 'oversound_auth' cookie
+     * @return ResponseEntity with user data, or error message
+     */
     @GetMapping("/user/{nick}")
-    public ResponseEntity<Map<String,Object>> patchUser(@PathVariable String nick, @CookieValue(value = "oversound_auth", required = false) String sessionToken) {
-        System.out.println("Received request with nick: " + nick + " and session token: " + sessionToken);
-        try{
+    public ResponseEntity<Map<String, Object>> getUser(@PathVariable String nick, @CookieValue(value = "oversound_auth", required = false) String sessionToken) {
+        try {
             UsuarioDTO requestedUser = Model.getModel().getUsuarioByNick(nick);
             
             int currentUserId = -1;
-            // Solo intentar obtener sesión si el token no es null
-            if(sessionToken != null && !sessionToken.isBlank()){
-                try{
+            // Attempt to get session only if token is present
+            if (sessionToken != null && !sessionToken.isBlank()) {
+                try {
                     currentUserId = Model.getModel().getSessionByToken(sessionToken).getIdUsuario();
-                }catch(SessionNotFoundException e){
-                    currentUserId = -1;
-                }catch(Exception e){
-                    // Sesión inválida, continuar como no autenticado
-                    currentUserId = -1;
+                } catch (SessionNotFoundException | SessionExpiredException e) {
+                    currentUserId = -1; // Continue as unauthenticated
+                } catch (Exception e) {
+                    currentUserId = -1; // Invalid session, continue as unauthenticated
                 }
             }
             
-            // Ocultar datos privados si no es el usuario actual
-            if(requestedUser.getIdUsuario() != currentUserId){
+            // Hide private data if not the current user
+            if (requestedUser.getIdUsuario() != currentUserId) {
                 requestedUser.setContrasena(null);
                 requestedUser.setApellido1(null);
                 requestedUser.setApellido2(null);
             }
+            
             return ResponseEntity.ok().body(requestedUser.toMap());
-        }catch(UserNotFoundException unfe){
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
-        }catch(UnexpectedErrorException uee){
-            System.out.println("Unexpected error: " + uee.getMessage());
+        } catch (UnexpectedErrorException e) {
+            System.err.println("Unexpected error fetching user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching user data."));
-        }catch(Exception e){
-            System.out.println("General error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("General error fetching user: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching user data."));
         } 
     }
 
-    private Map<String,Object> applyUserChanges(Map<String,Object> baseUser, Map<String, Object> changes){
-        for(String key : changes.keySet()){
+    /**
+     * Applies changes from a payload to a user's base data.
+     * Automatically hashes password if 'contrasena' field is present.
+     * 
+     * @param baseUser Original user data
+     * @param changes Changes to apply
+     * @return Modified user data
+     */
+    private Map<String, Object> applyUserChanges(Map<String, Object> baseUser, Map<String, Object> changes) {
+        for (String key : changes.keySet()) {
             Object value = changes.get(key);
-            if(key.equals("contrasena")){
+            if (key.equals("contrasena")) {
                 value = com.gb02.syumsvc.utils.SecureUtils.hashPassword((String) value);
             }
             baseUser.put(key, value);
@@ -73,60 +92,83 @@ public class UserController{
         return baseUser;
     }
 
+    /**
+     * Updates user information (partial update).
+     * User can only modify their own data.
+     * 
+     * @param nick Username to update
+     * @param payload Map containing fields to update
+     * @param sessionToken Session token from 'oversound_auth' cookie (required)
+     * @return ResponseEntity with updated user data, or error message
+     */
     @PatchMapping("/user/{nick}")
-    public ResponseEntity<Map<String,Object>> getUser(@PathVariable String nick, @RequestBody Map<String, Object> payload, @CookieValue(value = "oversound_auth", required = true) String sessionToken) {
-        System.out.println("Received PATCH request with nick: " + nick + " and session token: " + sessionToken);
-        try{
+    public ResponseEntity<Map<String, Object>> patchUser(@PathVariable String nick, @RequestBody Map<String, Object> payload, @CookieValue(value = "oversound_auth", required = true) String sessionToken) {
+        try {
             UsuarioDTO requestedUser = Model.getModel().getUsuarioByNick(nick);
             int currentUserId = Model.getModel().getSessionByToken(sessionToken).getIdUsuario();
-            if(requestedUser.getIdUsuario() != currentUserId){
+            
+            // Authorization check: user can only modify their own data
+            if (requestedUser.getIdUsuario() != currentUserId) {
                 return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to modify this user's data."));
             }
+            
+            // Apply changes and update user
             UsuarioDTO updatedUser = new UsuarioDTO();
             updatedUser.fromMap(applyUserChanges(requestedUser.toMap(), payload));
             Model.getModel().updateUsuario(currentUserId, updatedUser);
+            updatedUser.setContrasena(null);
+
             return ResponseEntity.ok().body(updatedUser.toMap());
-        }catch(SessionNotFoundException snfe){
+        } catch (SessionNotFoundException e) {
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
-        }catch(SessionExpiredException see){
+        } catch (SessionExpiredException e) {
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
-        }catch(UserNotFoundException unfe){
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
-        }catch(UnexpectedErrorException uee){
-            System.out.println("Unexpected error: " + uee.getMessage());
+        } catch (UnexpectedErrorException e) {
+            System.err.println("Unexpected error updating user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
-        }catch(Exception e){
-            System.out.println("Unexpected error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error updating user: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
         } 
     }
 
+    /**
+     * Deletes a user account.
+     * User can only delete their own account.
+     * 
+     * @param nick Username to delete
+     * @param sessionToken Session token from 'oversound_auth' cookie (required)
+     * @return ResponseEntity with success message, or error message
+     */
     @DeleteMapping("/user/{nick}")
-    public ResponseEntity<Map<String,Object>> deleteUser(@PathVariable String nick, @CookieValue(value = "oversound_auth", required = true) String sessionToken) {
-        System.out.println("Received DELETE request with nick: " + nick + " and session token: " + sessionToken);
-        try{
+    public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String nick, @CookieValue(value = "oversound_auth", required = true) String sessionToken) {
+        try {
             UsuarioDTO requestedUser = Model.getModel().getUsuarioByNick(nick);
             int currentUserId = Model.getModel().getSessionByToken(sessionToken).getIdUsuario();
-            if(requestedUser.getIdUsuario() != currentUserId){
+            
+            // Authorization check: user can only delete their own account
+            if (requestedUser.getIdUsuario() != currentUserId) {
                 return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to delete this user."));
             }
+            
             Model.getModel().deleteUsuario(requestedUser.getIdUsuario());
             return ResponseEntity.ok().body(Response.getOnlyMessage("User deleted successfully."));
-        }catch(UserNotFoundException unfe){
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
-        }catch(SessionNotFoundException snfe){
+        } catch (SessionNotFoundException e) {
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
-        }catch(SessionExpiredException see){
+        } catch (SessionExpiredException e) {
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
-        }catch(UnexpectedErrorException uee){
-            System.out.println("Unexpected error: " + uee.getMessage());
+        } catch (UnexpectedErrorException e) {
+            System.err.println("Unexpected error deleting user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while deleting user."));
-        }catch(Exception e){
-            System.out.println("Unexpected error: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error deleting user: " + e.getMessage());
             e.printStackTrace();
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while deleting user."));
         } 
     }
-
 }

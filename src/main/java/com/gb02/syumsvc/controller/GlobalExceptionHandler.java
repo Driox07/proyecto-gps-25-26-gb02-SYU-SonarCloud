@@ -9,11 +9,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import com.gb02.syumsvc.utils.Response;
 
 import org.springframework.web.HttpRequestMethodNotSupportedException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+        @ExceptionHandler(NoResourceFoundException.class)
+        public ResponseEntity<Map<String, Object>> handleNotFound(NoResourceFoundException ex) {
+                return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(Response.getErrorResponse(404, "Endpoint not found."));
+        }
 
         @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
         public ResponseEntity<Map<String, String>> handleMethodNotAllowed(HttpRequestMethodNotSupportedException ex) {

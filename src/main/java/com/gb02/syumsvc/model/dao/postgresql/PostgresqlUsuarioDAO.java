@@ -15,219 +15,268 @@ import com.gb02.syumsvc.exceptions.UserNotFoundException;
 import com.gb02.syumsvc.model.dao.UsuarioDAO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
 
+/**
+ * PostgreSQL implementation of UsuarioDAO.
+ * Handles database operations for User entities.
+ */
 public class PostgresqlUsuarioDAO implements UsuarioDAO {
 
+    /**
+     * Maps a ResultSet row to a UsuarioDTO object.
+     * 
+     * @param rset ResultSet positioned at a valid row
+     * @return UsuarioDTO populated with data from the current row
+     * @throws Exception if database access error occurs
+     */
+    private UsuarioDTO mapResultSetToUsuario(ResultSet rset) throws Exception {
+        UsuarioDTO usuario = new UsuarioDTO();
+        usuario.setIdUsuario(rset.getInt("idUsuario"));
+        usuario.setNick(rset.getString("nick"));
+        usuario.setNombre(rset.getString("nombre"));
+        usuario.setApellido1(rset.getString("apellido1"));
+        usuario.setApellido2(rset.getString("apellido2"));
+        usuario.setFechaReg(rset.getDate("fechaReg"));
+        usuario.setEmail(rset.getString("email"));
+        usuario.setContrasena(rset.getString("contrasena"));
+        usuario.setIdArtista(rset.getInt("idArtista"));
+        return usuario;
+    }
+
+    /**
+     * Retrieves all users from the database.
+     * 
+     * @return Array of all UsuarioDTO objects, empty array if error occurs
+     */
     @Override
     public UsuarioDTO[] obtainUsuarios() {
         Connection connection = PostgresqlConnector.connect();
         String query = "SELECT * FROM Usuarios";
-        try{
-            Statement ps = connection.createStatement();          
-            ResultSet rset = ps.executeQuery(query);
+        try {
+            Statement statement = connection.createStatement();
+            ResultSet rset = statement.executeQuery(query);
             ArrayList<UsuarioDTO> results = new ArrayList<>();
-            while(rset.next()){
-                UsuarioDTO u = new UsuarioDTO();
-                u.setIdUsuario(rset.getInt("idUsuario"));
-                u.setNick(rset.getString("nick"));
-                u.setNombre(rset.getString("nombre"));
-                u.setApellido1(rset.getString("apellido1"));
-                u.setApellido2(rset.getString("apellido2"));
-                u.setFechaReg(rset.getDate("fechaReg"));
-                u.setEmail(rset.getString("email"));
-                u.setContrasena(rset.getString("contrasena"));
-                u.setIdArtista(rset.getInt("idArtista"));
-                results.add(u);
-            }        
-            return results.toArray(new UsuarioDTO[results.size()]);
-        }catch(Exception e){
+            while (rset.next()) {
+                results.add(mapResultSetToUsuario(rset));
+            }
+            return results.toArray(new UsuarioDTO[0]);
+        } catch (Exception e) {
             System.err.println("Error obtaining usuarios (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             return new UsuarioDTO[0];
         }
     }
 
+    /**
+     * Retrieves a user by their ID.
+     * 
+     * @param idUsuario User ID to search for
+     * @return UsuarioDTO object
+     * @throws UserNotFoundException if user with given ID doesn't exist
+     * @throws UnexpectedErrorException if database error occurs
+     */
     @Override
     public UsuarioDTO obtainUsuario(int idUsuario) throws UserNotFoundException, UnexpectedErrorException {
         Connection connection = PostgresqlConnector.connect();
         String query = "SELECT * FROM Usuarios WHERE idUsuario = ?";
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
-            if(rset.next()){
-                UsuarioDTO u = new UsuarioDTO();
-                u.setIdUsuario(rset.getInt("idUsuario"));
-                u.setNick(rset.getString("nick"));
-                u.setNombre(rset.getString("nombre"));
-                u.setApellido1(rset.getString("apellido1"));
-                u.setApellido2(rset.getString("apellido2"));
-                u.setFechaReg(rset.getDate("fechaReg"));
-                u.setEmail(rset.getString("email"));
-                u.setContrasena(rset.getString("contrasena"));
-                u.setIdArtista(rset.getInt("idArtista"));
-                return u;
-            }else{
+            if (rset.next()) {
+                return mapResultSetToUsuario(rset);
+            } else {
                 throw new UserNotFoundException("Usuario con idUsuario " + idUsuario + " no encontrado.");
             }
-        }catch(UserNotFoundException unfe){
-            throw unfe;
-        }catch(Exception e){
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
             System.err.println("Error obtaining usuario by idUsuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
         }
     }
 
+    /**
+     * Retrieves a user by their username (nick).
+     * 
+     * @param nick Username to search for
+     * @return UsuarioDTO object
+     * @throws UserNotFoundException if user with given nick doesn't exist
+     * @throws UnexpectedErrorException if database error occurs
+     */
     @Override
     public UsuarioDTO obtainUsuarioByNick(String nick) throws UserNotFoundException, UnexpectedErrorException {
         Connection connection = PostgresqlConnector.connect();
         String query = "SELECT * FROM Usuarios WHERE nick = ?";
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, nick);
             ResultSet rset = ps.executeQuery();
-            if(rset.next()){
-                UsuarioDTO u = new UsuarioDTO();
-                u.setIdUsuario(rset.getInt("idUsuario"));
-                u.setNick(rset.getString("nick"));
-                u.setNombre(rset.getString("nombre"));
-                u.setApellido1(rset.getString("apellido1"));
-                u.setApellido2(rset.getString("apellido2"));
-                u.setFechaReg(rset.getDate("fechaReg"));
-                u.setEmail(rset.getString("email"));
-                u.setContrasena(rset.getString("contrasena"));
-                u.setIdArtista(rset.getInt("idArtista"));
-                return u;
-            }else{
+            if (rset.next()) {
+                return mapResultSetToUsuario(rset);
+            } else {
                 throw new UserNotFoundException("Usuario con nick " + nick + " no encontrado.");
             }
-        }catch(UserNotFoundException unfe){
-            throw unfe;
-        }catch(Exception e){
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
             System.err.println("Error obtaining usuario by nick (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
         }
     }
 
+    /**
+     * Retrieves a user by their email address.
+     * 
+     * @param mail Email address to search for
+     * @return UsuarioDTO object
+     * @throws UserNotFoundException if user with given email doesn't exist
+     * @throws UnexpectedErrorException if database error occurs
+     */
     @Override
     public UsuarioDTO obtainUsuarioByMail(String mail) throws UserNotFoundException, UnexpectedErrorException {
         Connection connection = PostgresqlConnector.connect();
         String query = "SELECT * FROM Usuarios WHERE email = ?";
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, mail);
             ResultSet rset = ps.executeQuery();
-            if(rset.next()){
-                UsuarioDTO u = new UsuarioDTO();
-                u.setIdUsuario(rset.getInt("idUsuario"));
-                u.setNick(rset.getString("nick"));
-                u.setNombre(rset.getString("nombre"));
-                u.setApellido1(rset.getString("apellido1"));
-                u.setApellido2(rset.getString("apellido2"));
-                u.setFechaReg(rset.getDate("fechaReg"));
-                u.setEmail(rset.getString("email"));
-                u.setContrasena(rset.getString("contrasena"));
-                u.setIdArtista(rset.getInt("idArtista"));
-                return u;
-            }else{
+            if (rset.next()) {
+                return mapResultSetToUsuario(rset);
+            } else {
                 throw new UserNotFoundException("Usuario con email " + mail + " no encontrado.");
             }
-        }catch(UserNotFoundException unfe){
-            throw unfe;
-        }catch(Exception e){
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
             System.err.println("Error obtaining usuario by email (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
         }
     }
 
+    /**
+     * Inserts a new user into the database.
+     * 
+     * @param usuario UsuarioDTO object with user data
+     * @return Generated user ID
+     * @throws DupedUsernameException if username already exists
+     * @throws DupedEmailException if email already exists
+     * @throws UnexpectedErrorException if database error occurs
+     */
     @Override
     public int insertUsuario(UsuarioDTO usuario) throws UnexpectedErrorException, DupedUsernameException, DupedEmailException {
         Connection connection = PostgresqlConnector.connect();
         String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista) VALUES (?, ?, ?, ?, ?, ?, ?)";
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, usuario.getNick());
-            ps.setString(2,  usuario.getNombre());
-            ps.setString(3,  usuario.getApellido1());
-            ps.setString(4,  usuario.getApellido2());
-            ps.setString(5,  usuario.getEmail());
-            ps.setString(6,  usuario.getContrasena());
-            if(usuario.getIdArtista() == null){
+            ps.setString(2, usuario.getNombre());
+            ps.setString(3, usuario.getApellido1());
+            ps.setString(4, usuario.getApellido2());
+            ps.setString(5, usuario.getEmail());
+            ps.setString(6, usuario.getContrasena());
+            if (usuario.getIdArtista() == null) {
                 ps.setNull(7, java.sql.Types.INTEGER);
-            }else{
+            } else {
                 ps.setInt(7, usuario.getIdArtista());
             }
+            
             int rows = ps.executeUpdate();
-            if(rows != 1){
-                throw new UnexpectedErrorException("");
+            if (rows != 1) {
+                throw new UnexpectedErrorException("Insert did not affect exactly one row");
             }
+            
             ResultSet rs = ps.getGeneratedKeys();
             if (rs != null && rs.next()) {
                 return rs.getInt(1);
             } else {
-                throw new UnexpectedErrorException("");
+                throw new UnexpectedErrorException("Failed to retrieve generated key");
             }
-        }catch(PSQLException e){
-            if(e.getSQLState().equals("23505")){
+        } catch (PSQLException e) {
+            // Handle UNIQUE constraint violations (SQL state 23505)
+            if ("23505".equals(e.getSQLState())) {
                 String serverError = e.getServerErrorMessage().getDetail();
-                if(serverError.contains("nick")){
+                if (serverError.contains("nick")) {
                     throw new DupedUsernameException("Username " + usuario.getNick() + " already exists");
                 }
-                if(serverError.contains("email")){
+                if (serverError.contains("email")) {
                     throw new DupedEmailException("Email " + usuario.getEmail() + " already exists");
                 }
             }
+            System.err.println("PostgreSQL error inserting usuario: " + e.getMessage());
+            e.printStackTrace();
             throw new UnexpectedErrorException("Unexpected error inserting usuario: " + e.getMessage());
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println("Error inserting usuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             throw new UnexpectedErrorException("Unexpected error inserting usuario: " + e.getMessage());
         }
     }
 
+    /**
+     * Updates an existing user's information.
+     * 
+     * @param idUsuario ID of the user to update
+     * @param usuario UsuarioDTO with new user data
+     * @return true if update successful, false otherwise
+     */
     @Override
     public boolean modifyUsuario(int idUsuario, UsuarioDTO usuario) {
         Connection connection = PostgresqlConnector.connect();
         String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, fechaReg = ?, email = ?, contrasena = ?, idArtista = ? WHERE idUsuario = ?";
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, usuario.getNick());
-            ps.setString(2,  usuario.getNombre());
-            ps.setString(3,  usuario.getApellido1());
-            ps.setString(4,  usuario.getApellido2());
-            ps.setDate(5,  usuario.getFechaReg());
-            ps.setString(6,  usuario.getEmail());
-            ps.setString(7,  usuario.getContrasena());
-            ps.setInt(8,  usuario.getIdArtista());
+            ps.setString(2, usuario.getNombre());
+            ps.setString(3, usuario.getApellido1());
+            ps.setString(4, usuario.getApellido2());
+            ps.setDate(5, usuario.getFechaReg());
+            ps.setString(6, usuario.getEmail());
+            ps.setString(7, usuario.getContrasena());
+            ps.setInt(8, usuario.getIdArtista());
             ps.setInt(9, idUsuario);
             ps.executeUpdate();
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println("Error modifying usuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
 
+    /**
+     * Deletes a user from the database.
+     * 
+     * @param idUsuario ID of the user to delete
+     * @return true if deletion successful
+     * @throws UserNotFoundException if user doesn't exist
+     * @throws UnexpectedErrorException if database error occurs
+     */
     @Override
     public boolean deleteUsuario(int idUsuario) {
         Connection connection = PostgresqlConnector.connect();
         String query = "DELETE FROM Usuarios WHERE idUsuario = ?";
-        try{
+        try {
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             int rows = ps.executeUpdate();
-            if(rows != 1){
+            if (rows != 1) {
                 throw new UserNotFoundException("Usuario with idUsuario " + idUsuario + " not found.");
             }
             return true;
-        }catch(Exception e){
+        } catch (Exception e) {
             System.err.println("Error deleting usuario (PostgresqlUsuarioDAO)");
             System.err.println("Reason: " + e.getMessage());
+            e.printStackTrace();
             throw new UnexpectedErrorException("Unexpected error deleting usuario: " + e.getMessage());
         }
     }
-    
 }

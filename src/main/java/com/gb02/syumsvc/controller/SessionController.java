@@ -23,118 +23,165 @@ import com.gb02.syumsvc.utils.Response;
 import com.gb02.syumsvc.utils.SecureUtils;
 
 
+/**
+ * REST controller for session management (login, register, authentication, logout).
+ * Handles user registration, authentication, and session lifecycle.
+ */
 @RestController
 public class SessionController {
 
+    private static final long SESSION_DURATION_MS = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+
+    /**
+     * Registers a new user and creates an initial session.
+     * 
+     * @param payload Map containing user data (nick, contrasena, email, etc.)
+     * @return ResponseEntity with registered user data and session token, or error message
+     */
     @PostMapping("/register")
     public ResponseEntity<Map<String, Object>> registerUser(@RequestBody Map<String, Object> payload) {
-        try{
+        try {
             Model model = Model.getModel();
-            // Creación del usuario con el payload
+            
+            // Create user from payload
             UsuarioDTO usuario = new UsuarioDTO();
             usuario.fromMap(payload);
-            // Hasheo de la contraseeña y registro
+            
+            // Hash password and register user
             usuario.setContrasena(SecureUtils.hashPassword(usuario.getContrasena()));
             UsuarioDTO nuevoUsuario = model.registrarUsuario(usuario);
-            // Creación de la sesión
+            
+            // Create initial session for the new user
             SesionDTO sesion = new SesionDTO();
             sesion.setIdUsuario(nuevoUsuario.getIdUsuario());
             java.util.Date expDate = new java.util.Date();
-            expDate.setTime(expDate.getTime() + (1000 * 60 * 60 * 24)); // 24 horas (creo)
+            expDate.setTime(expDate.getTime() + SESSION_DURATION_MS);
             sesion.setFechaValidez(new Date(expDate.getTime()));
             sesion.setToken(SecureUtils.generateSessionToken());
             Model.getModel().insertarSesion(sesion);
-            nuevoUsuario.setContrasena(null); // No devolver la contraseña
-            // Respuesta exitosa
+            
+            // Remove password from response for security
+            nuevoUsuario.setContrasena(null);
+            
             return ResponseEntity.ok().body(Map.of("registered_user", nuevoUsuario.toMap(), "session_token", sesion.getToken()));
-        }catch(DupedEmailException dem){
+        } catch (DupedEmailException e) {
             return ResponseEntity.badRequest().body(Map.of("error", "This email is already registered."));
-        }catch(DupedUsernameException dun){
+        } catch (DupedUsernameException e) {
             return ResponseEntity.badRequest().body(Map.of("error", "This username is already registered."));
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during registration: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "An unknown error occurred during registration."));
         }
     }
 
+    /**
+     * Authenticates a user and creates a new session.
+     * Accepts either username (nick) or email as identifier.
+     * 
+     * @param payload Map containing 'nick' (username or email) and 'contrasena' (password)
+     * @return ResponseEntity with success message and session token, or error message
+     */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String, Object> payload) {
-        try{
-            // Validación de los campos
-            if(!payload.containsKey("nick") || !payload.containsKey("contrasena")){
+        try {
+            // Validate required fields
+            if (!payload.containsKey("nick") || !payload.containsKey("contrasena")) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Nick and password are required."));
             }
-            // Obtención del usuario por nick o email
+            
+            // Fetch user by nick or email (auto-detect if contains @)
             UsuarioDTO usuario;
-            if(payload.get("nick").toString().contains("@")){
+            if (payload.get("nick").toString().contains("@")) {
                 usuario = Model.getModel().getUsuarioByMail(payload.get("nick").toString());
-            }else{
+            } else {
                 usuario = Model.getModel().getUsuarioByNick(payload.get("nick").toString());
             }
-            // Verificación de la contraseña
+            
+            // Verify password
             Boolean passwordMatch = SecureUtils.verifyPassword(payload.get("contrasena").toString(), usuario.getContrasena());
-            if(!passwordMatch){
+            if (!passwordMatch) {
                 return ResponseEntity.status(401).body(Map.of("error", "Wrong user or password."));
             }
-            // Creación de la sesión
+            
+            // Create new session
             SesionDTO sesion = new SesionDTO();
             sesion.setIdUsuario(usuario.getIdUsuario());
             java.util.Date expDate = new java.util.Date();
-            expDate.setTime(expDate.getTime() + (1000 * 60 * 60 * 24)); // 24 horas (creo)
+            expDate.setTime(expDate.getTime() + SESSION_DURATION_MS);
             sesion.setFechaValidez(new Date(expDate.getTime()));
             sesion.setToken(SecureUtils.generateSessionToken());
             Model.getModel().insertarSesion(sesion);
-            // Respuesta exitosa
+            
             return ResponseEntity.ok().body(Map.of("msg", "Login successful.", "session_token", sesion.getToken()));
-        }catch(UserNotFoundException unfe){
+        } catch (UserNotFoundException e) {
             return ResponseEntity.status(401).body(Map.of("error", "Wrong user or password."));
-        }catch(UnexpectedErrorException uee){
+        } catch (UnexpectedErrorException e) {
+            System.err.println("Unexpected error during login: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of("error", "An unknown error occurred during login."));
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during login: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "An unknown error occurred during login."));
         }
     }
 
+    /**
+     * Validates a session token and returns the authenticated user's data.
+     * 
+     * @param token Session token from 'oversound_auth' cookie
+     * @return ResponseEntity with user data (without password), or error message
+     */
     @GetMapping("/auth")
     public ResponseEntity<Map<String, Object>> authenticateUser(@CookieValue(value = "oversound_auth", required = true) String token) {
-        try{
+        try {
             SesionDTO sesion = Model.getModel().getSessionByToken(token);
-            if(sesion == null){
+            if (sesion == null) {
                 return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
             }
+            
             UsuarioDTO usuario = Model.getModel().getUsuario(sesion.getIdUsuario());
-            usuario.setContrasena(null); // No devolver la contraseña
+            usuario.setContrasena(null); // Remove password from response
             return ResponseEntity.ok().body(usuario.toMap());
-        }catch(SessionExpiredException see){
+        } catch (SessionExpiredException e) {
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
-        }catch(SessionNotFoundException snfe){
+        } catch (SessionNotFoundException e) {
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
-        }catch(UnexpectedErrorException uee){
+        } catch (UnexpectedErrorException e) {
+            System.err.println("Unexpected error during authentication: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during authentication."));
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during authentication: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during authentication."));
         }
     }
 
+    /**
+     * Logs out a user by deleting their session.
+     * 
+     * @param token Session token from 'oversound_auth' cookie
+     * @return ResponseEntity with success message, or error message
+     */
     @PostMapping("/logout")
     public ResponseEntity<Map<String, Object>> logoutUser(@CookieValue(value = "oversound_auth", required = true) String token) {
-        try{
+        try {
             SesionDTO sesion = Model.getModel().getSessionByToken(token);
-            if(sesion == null){
+            if (sesion == null) {
                 return ResponseEntity.status(401).body(Map.of("error", "Invalid session token."));
             }
+            
             Model.getModel().deleteSesion(sesion.getIdSesion());
             return ResponseEntity.ok().body(Map.of("success", "Logout successful."));
-        }catch(SessionNotFoundException snfe){
+        } catch (SessionNotFoundException e) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid session token."));
-        }catch(UnexpectedErrorException uee){
+        } catch (UnexpectedErrorException e) {
+            System.err.println("Unexpected error during logout: " + e.getMessage());
             return ResponseEntity.status(500).body(Map.of("error", "An unknown error occurred during logout."));
-        }catch(Exception e){
-            System.out.println(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error during logout: " + e.getMessage());
+            e.printStackTrace();
             return ResponseEntity.status(500).body(Map.of("error", "An unknown error occurred during logout."));
         }
     }
-    
 }
