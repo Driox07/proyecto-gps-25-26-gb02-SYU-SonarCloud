@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import com.gb02.syumsvc.model.dao.CancionFavDAO;
 import com.gb02.syumsvc.model.dto.CancionFavDTO;
 
-public class PostgresqlCancionFav implements CancionFavDAO {
+public class PostgresqlCancionFavDAO implements CancionFavDAO {
 
     @Override
     public CancionFavDTO[] obtainCancionFavByUser(int idUsuario) {

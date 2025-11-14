@@ -34,7 +34,7 @@ public class PostgresqlConnector {
             }catch(ClassNotFoundException e){
                 System.err.println("PostgreSQL driver not found.");
             }catch(SQLException e){
-                System.err.println("Error connecting to syuDB");
+                System.err.println("Error connecting to syuDB: " + e.getMessage());
             }
         }
         return connection;
@@ -63,7 +63,7 @@ public class PostgresqlConnector {
             String port = props.getProperty("port");
             String dbn = props.getProperty("dbn");
             usr = props.getProperty("usr");
-            psw = props.getProperty("psw");
+            psw = props.getProperty("pwd");
             url = String.format("jdbc:postgresql://%s:%s/%s", ip, port, dbn);
             return true;
         }catch(FileNotFoundException e){

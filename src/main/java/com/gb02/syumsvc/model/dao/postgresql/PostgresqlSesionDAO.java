@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+import com.gb02.syumsvc.exceptions.SessionNotFoundException;
+import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
 import com.gb02.syumsvc.model.dao.SesionDAO;
 import com.gb02.syumsvc.model.dto.SesionDTO;
 
@@ -61,10 +63,13 @@ public class PostgresqlSesionDAO implements SesionDAO {
     }
 
     @Override
-    public SesionDTO obtainSesion(String token) {
+    public SesionDTO obtainSesion(String token) throws SessionNotFoundException, UnexpectedErrorException{
         Connection connection = PostgresqlConnector.connect();
         String query = "SELECT * FROM Sesiones WHERE token = ?";
         try{
+            if (token == null){
+                throw new SessionNotFoundException("Session token is null");
+            }
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, token);
             ResultSet rset = ps.executeQuery();
@@ -76,17 +81,17 @@ public class PostgresqlSesionDAO implements SesionDAO {
                 s.setIdUsuario(rset.getInt("idUsuario"));
                 return s;
             }else{
-                return null;
+                throw new SessionNotFoundException("Session not found for token: " + token);
             }
         }catch(Exception e){
             System.err.println("Error obtaining sesion by token (PostgresqlSesionDAO)");
             System.err.println("Reason: " + e.getMessage());        
-            return null;
+            throw new UnexpectedErrorException("Unexpected error obtaining session by token: " + token);
         }
     }
 
     @Override
-    public boolean insertSesion(SesionDTO sesion) {
+    public boolean insertSesion(SesionDTO sesion) throws UnexpectedErrorException {
         Connection connection = PostgresqlConnector.connect();
         String query = "INSERT INTO Sesiones (token, fechaValidez, idUsuario) VALUES (?, ?, ?)";
         try{
@@ -95,11 +100,14 @@ public class PostgresqlSesionDAO implements SesionDAO {
             ps.setDate(2, sesion.getFechaValidez());
             ps.setInt(3, sesion.getIdUsuario());
             int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            if (rowsAffected != 1){
+                throw new UnexpectedErrorException("Error inserting sesion (PostgresqlSesionDAO)");
+            }
+            return true;
         }catch(Exception e){
             System.err.println("Error inserting sesion (PostgresqlSesionDAO)");
             System.err.println("Reason: " + e.getMessage());        
-            return false;
+            throw new UnexpectedErrorException("Error creating a session for user " + sesion.getIdUsuario());
         }
     }
 
@@ -110,18 +118,21 @@ public class PostgresqlSesionDAO implements SesionDAO {
     }
 
     @Override
-    public boolean deleteSesion(int idSesion) {
+    public boolean deleteSesion(int idSesion) throws SessionNotFoundException, UnexpectedErrorException {
         Connection connection = PostgresqlConnector.connect();
         String query = "DELETE FROM Sesiones WHERE idSesion = ?";
         try{
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setInt(1, idSesion);
             int rowsAffected = ps.executeUpdate();
-            return rowsAffected > 0;
+            if (rowsAffected == 0) {
+                throw new SessionNotFoundException("Session not found with id: " + idSesion);
+            }
+            return true;
         }catch(Exception e){
             System.err.println("Error deleting sesion (PostgresqlSesionDAO)");
             System.err.println("Reason: " + e.getMessage());
-            return false;
+            throw new UnexpectedErrorException("Unexpected error deleting session with id: " + idSesion);
         }
     }
     

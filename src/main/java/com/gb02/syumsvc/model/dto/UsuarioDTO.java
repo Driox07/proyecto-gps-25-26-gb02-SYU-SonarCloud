@@ -1,9 +1,10 @@
 package com.gb02.syumsvc.model.dto;
 
 import java.sql.Date;
+import java.util.Map;
 
-public class UsuarioDTO {
-    private int idUsuario;
+public class UsuarioDTO implements DTO {
+    private Integer idUsuario;
     private String nick;
     private String nombre;
     private String apellido1;
@@ -11,13 +12,13 @@ public class UsuarioDTO {
     private Date fechaReg;
     private String email;
     private String contrasena;
-    private int idArtista;
+    private Integer idArtista;
 
-    public int getIdUsuario() {
+    public Integer getIdUsuario() {
         return idUsuario;
     }
 
-    public void setIdUsuario(int idUsuario) {
+    public void setIdUsuario(Integer idUsuario) {
         this.idUsuario = idUsuario;
     }
 
@@ -77,11 +78,39 @@ public class UsuarioDTO {
         this.contrasena = contrasena;
     }
 
-    public int getIdArtista() {
+    public Integer getIdArtista() {
         return idArtista;
     }
 
-    public void setIdArtista(int idArtista) {
+    public void setIdArtista(Integer idArtista) {
         this.idArtista = idArtista;
+    }
+    
+    @Override
+    public Map<String, Object> toMap() {
+        Map<String, Object> map = new java.util.HashMap<>();
+        map.put("idUsuario", this.idUsuario);
+        map.put("nick", this.nick);
+        map.put("nombre", this.nombre);
+        map.put("apellido1", this.apellido1);
+        map.put("apellido2", this.apellido2);
+        map.put("fechaReg", this.fechaReg);
+        map.put("email", this.email);
+        map.put("contrasena", this.contrasena);
+        map.put("idArtista", this.idArtista);
+        return map;
+    }
+
+    @Override
+    public void fromMap(Map<String, Object> map) {
+        idUsuario = map.get("idUsuario") != null ? (Integer) map.get("idUsuario") : null;
+        nick = map.get("nick") != null ? (String) map.get("nick") : null;
+        nombre = map.get("nombre") != null ? (String) map.get("nombre") : null;
+        apellido1 = map.get("apellido1") != null ? (String) map.get("apellido1") : null;
+        apellido2 = map.get("apellido2") != null ? (String) map.get("apellido2") : null;
+        fechaReg = map.get("fechaReg") != null ? (Date) map.get("fechaReg") : null;
+        email = map.get("email") != null ? (String) map.get("email") : null;
+        contrasena = map.get("contrasena") != null ? (String) map.get("contrasena") : null;
+        idArtista = map.get("idArtista") != null ? (Integer) map.get("idArtista") : null;
     }
 }

@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class Controller {
     @GetMapping("/")
     public String home() {
-        return "SYU MSVC - GB02";
+        return "Sesiones y Usuarios (SYU) MSVC - GB02 - Adrián Sánchez Galera";
     }
     
 }
