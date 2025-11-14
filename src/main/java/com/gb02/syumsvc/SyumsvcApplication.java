@@ -8,6 +8,7 @@ public class SyumsvcApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(SyumsvcApplication.class, args);
+		
 	}
 
 }
