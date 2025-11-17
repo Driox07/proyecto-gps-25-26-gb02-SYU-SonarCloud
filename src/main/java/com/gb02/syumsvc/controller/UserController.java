@@ -1,6 +1,7 @@
 package com.gb02.syumsvc.controller;
 
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.gb02.syumsvc.config.DebugConfig;
 import com.gb02.syumsvc.exceptions.SessionExpiredException;
@@ -8,18 +9,25 @@ import com.gb02.syumsvc.exceptions.SessionNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
 import com.gb02.syumsvc.exceptions.UserNotFoundException;
 import com.gb02.syumsvc.model.Model;
+import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
 import com.gb02.syumsvc.utils.Response;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.PostMapping;
 
 
 /**
@@ -28,6 +36,17 @@ import org.springframework.web.bind.annotation.RequestBody;
  */
 @RestController
 public class UserController {
+
+    private final String TYA_SERVER = "http://10.1.1.4:8081";
+    private final RestTemplate restTemplate;
+    
+    public UserController() {
+        // Configure RestTemplate with timeouts
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5 seconds connection timeout
+        factory.setReadTimeout(10000);   // 10 seconds read timeout
+        this.restTemplate = new RestTemplate(factory);
+    }
 
     /**
      * Retrieves user information by username (nick).
@@ -179,4 +198,123 @@ public class UserController {
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while deleting user."));
         } 
     }
+
+    /**
+     * Links the authenticated user to an external artist record.
+     * Expects JSON body with: nombre, bio, fechainicio, email, socialmediaurl
+     * Calls an external service (placeholder) which returns the artist id. If successful,
+     * updates the current user's idArtista with the returned id and returns the updated user.
+     */
+    @PostMapping("/user/link-artist")
+    public ResponseEntity<Map<String, Object>> linkArtist(@RequestBody Map<String, Object> payload, @CookieValue(value = "oversound_auth", required = true) String token) {
+        Integer returnedArtistId = null;
+        try {
+            
+            if(payload.get("artisticName") == null) {
+                return ResponseEntity.status(400).body(Response.getErrorResponse(400, "Missing required field: artisticName."));
+            }
+
+            if(payload.get("artisticEmail") == null) {
+                return ResponseEntity.status(400).body(Response.getErrorResponse(400, "Missing required field: artisticEmail."));
+            }
+
+            SesionDTO sesion = Model.getModel().getSessionByToken(token);
+            int currentUserId = sesion.getIdUsuario();
+            UsuarioDTO user = Model.getModel().getUsuario(currentUserId);
+            if (user.getIdArtista() != null && getArtist(user.getIdArtista()) != null) {
+                return ResponseEntity.status(400).body(Response.getErrorResponse(400, "User is already linked to an artist."));
+            }
+
+            returnedArtistId = createArtist(payload, token);
+            if (returnedArtistId == null) {
+                return ResponseEntity.status(502).body(Response.getErrorResponse(502, "Failed to link artist: external service error."));
+            }
+
+            // Update user with new artist id
+            user.setIdArtista(returnedArtistId);
+            Model.getModel().updateUsuario(currentUserId, user);
+            user.setContrasena(null);
+
+            return ResponseEntity.ok().body(user.toMap());
+        } catch (SessionNotFoundException e) {
+            System.err.println("Session not found during link-artist: " + e.getMessage());
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+        } catch (SessionExpiredException e) {
+            System.err.println("Session expired during link-artist: " + e.getMessage());
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+        } catch (UserNotFoundException e) {
+            if(returnedArtistId != null) deleteArtist(returnedArtistId, token);
+            System.err.println("User not found during link-artist: " + e.getMessage());
+            return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
+        } catch (UnexpectedErrorException e) {
+            if(returnedArtistId != null) deleteArtist(returnedArtistId, token);
+            System.err.println("Unexpected error linking artist: " + e.getMessage());
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while linking artist."));
+        } catch (Exception e) {
+            if(returnedArtistId != null) deleteArtist(returnedArtistId, token);
+            System.err.println("General error linking artist: " + e.getMessage());
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while linking artist."));
+        }
+    }
+
+    private Map<String, Object> getArtist(int id){
+        try {
+            String url = TYA_SERVER+"/artist/"+id;
+            
+            // Hacer la request
+            ResponseEntity<Map<String, Object>> response = (ResponseEntity<Map<String, Object>>)(ResponseEntity<?>)restTemplate.getForEntity(url, Map.class);
+            
+            if (response.getStatusCode().is2xxSuccessful()) {
+                return response.getBody();
+            }
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error calling external service: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Integer createArtist(@RequestBody Map<String, Object> payload, String token) {
+        try {
+            String url = TYA_SERVER+"/artist/upload";
+            
+            // Configurar headers con cookie
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.add("Cookie", "oversound_auth=" + token);
+            
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+            
+            // Hacer la request
+            ResponseEntity<Map<String, Object>> response = (ResponseEntity<Map<String, Object>>)(ResponseEntity<?>)restTemplate.postForEntity(url, request, Map.class);
+            
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Map<String, Object> body = response.getBody();
+                return (Integer) body.get("artistId");
+            }
+            return null;
+        } catch (Exception e) {
+            System.err.println("Error calling external service: " + e.getMessage());
+            return null;
+        }
+    }
+
+    private Integer deleteArtist(int id, String token){
+        try {
+            String url = TYA_SERVER+"/artist/"+id;
+            
+            // Configurar headers con cookie
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Cookie", "oversound_auth=" + token);
+            
+            HttpEntity<?> request = new HttpEntity<>(headers);
+            restTemplate.exchange(url, org.springframework.http.HttpMethod.DELETE, request, Void.class);
+            return id;
+        } catch (Exception e) {
+            System.err.println("Error calling external service to delete artist: " + e.getMessage());
+            return null;
+        }
+    }
+    
 }
+

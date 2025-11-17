@@ -38,7 +38,11 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         usuario.setFechaReg(rset.getDate("fechaReg"));
         usuario.setEmail(rset.getString("email"));
         usuario.setContrasena(rset.getString("contrasena"));
-        usuario.setIdArtista(rset.getInt("idArtista"));
+        
+        // Handle nullable idArtista field
+        Integer idArtista = (Integer) rset.getObject("idArtista");
+        usuario.setIdArtista(idArtista);
+        
         return usuario;
     }
 
