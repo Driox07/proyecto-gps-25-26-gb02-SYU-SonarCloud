@@ -3,6 +3,7 @@ package com.gb02.syumsvc.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
+import com.gb02.syumsvc.exceptions.InvalidUsernameException;
 import com.gb02.syumsvc.exceptions.SessionExpiredException;
 import com.gb02.syumsvc.exceptions.SessionNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
@@ -10,7 +11,9 @@ import com.gb02.syumsvc.exceptions.UserNotFoundException;
 import com.gb02.syumsvc.model.Model;
 import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
+import com.gb02.syumsvc.utils.Base64Img;
 import com.gb02.syumsvc.utils.Response;
+import com.gb02.syumsvc.utils.UsernameChecker;
 
 import java.util.Map;
 
@@ -35,7 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 public class UserController {
 
-    private final String TYA_SERVER = "http://10.1.1.4:8081";
+    private final String TYA_SERVER = "http://10.1.1.2:8081";
     private final RestTemplate restTemplate;
     
     public UserController() {
@@ -106,6 +109,23 @@ public class UserController {
             if (key.equals("contrasena")) {
                 value = com.gb02.syumsvc.utils.SecureUtils.hashPassword((String) value);
             }
+            if (key.equals("imagen")){
+                String b64 = (String) value;
+                String nick = changes.containsKey("nick") ? (String) changes.get("nick") : (String) baseUser.get("nick");
+                String extension = Base64Img.saveB64(b64, nick);
+                value = "/pfp/" + nick + "." + extension;
+            }
+            if (key.equals("nick")){
+                if(!UsernameChecker.isValidUsername((String)changes.get("nick"))){
+                    throw new InvalidUsernameException();
+                }
+                if(baseUser.get("imagen") != null && !baseUser.get("imagen").toString().isBlank()){
+                    String oldImagePath = (String) baseUser.get("imagen");
+                    String newNick = (String) changes.get("nick");
+                    String newImagePath = Base64Img.changeNick(oldImagePath, newNick);
+                    baseUser.put("imagen", newImagePath);
+                }
+            }
             baseUser.put(key, value);
         }
         return baseUser;
@@ -134,10 +154,13 @@ public class UserController {
             // Apply changes and update user
             UsuarioDTO updatedUser = new UsuarioDTO();
             updatedUser.fromMap(applyUserChanges(requestedUser.toMap(), payload));
+
             Model.getModel().updateUsuario(currentUserId, updatedUser);
             updatedUser.setContrasena(null);
-
             return ResponseEntity.ok().body(updatedUser.toMap());
+        } catch (InvalidUsernameException e) {
+            System.err.println("Invalid username during user update: " + e.getMessage());
+            return ResponseEntity.status(400).body(Response.getErrorResponse(400, e.getMessage()));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during user update: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
@@ -175,8 +198,16 @@ public class UserController {
             if (requestedUser.getIdUsuario() != currentUserId) {
                 return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to delete this user."));
             }
-            
+            String img = requestedUser.getImagen();
             Model.getModel().deleteUsuario(requestedUser.getIdUsuario());
+            if (img != null && !img.isBlank()) {
+                java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/static" + img);
+                try {
+                    java.nio.file.Files.deleteIfExists(path);
+                } catch (java.io.IOException e) {
+                    System.err.println("Failed to delete image file: " + e.getMessage());
+                }
+            }
             return ResponseEntity.ok().body(Response.getOnlyMessage("User deleted successfully."));
         } catch (UserNotFoundException e) {
             System.err.println("User not found during deletion: " + e.getMessage());

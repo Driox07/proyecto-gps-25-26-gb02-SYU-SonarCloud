@@ -547,9 +547,9 @@ components:
           example: '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5'
         imagen:
           type: string
-          format: byte
-          description: Base64 encoded profile image (optional)
+          description: Path to the profile image (stored in SYU service)
           nullable: true
+          example: '/pfp/driox.png'
         relatedArtist:
           type: integer
           description: ID of the artist associated with this user account, if applicable (null if not artist)
@@ -589,7 +589,7 @@ components:
         imagen:
           type: string
           format: byte
-          description: Base64 encoded profile image (optional)
+          description: Base64 encoded profile image that will be stored in SYU service
           nullable: true
         relatedArtist:
           type: integer

@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.gb02.syumsvc.exceptions.DupedEmailException;
 import com.gb02.syumsvc.exceptions.DupedUsernameException;
+import com.gb02.syumsvc.exceptions.InvalidUsernameException;
 import com.gb02.syumsvc.exceptions.SessionExpiredException;
 import com.gb02.syumsvc.exceptions.SessionNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
@@ -19,8 +20,10 @@ import com.gb02.syumsvc.exceptions.UserNotFoundException;
 import com.gb02.syumsvc.model.Model;
 import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
+import com.gb02.syumsvc.utils.Base64Img;
 import com.gb02.syumsvc.utils.Response;
 import com.gb02.syumsvc.utils.SecureUtils;
+import com.gb02.syumsvc.utils.UsernameChecker;
 
 
 /**
@@ -45,6 +48,16 @@ public class SessionController {
             // Create user from payload
             UsuarioDTO usuario = new UsuarioDTO();
             usuario.fromMap(payload);
+
+            if(usuario.getNick() == null || !UsernameChecker.isValidUsername(usuario.getNick())){
+                throw new InvalidUsernameException();
+            }
+
+            if(usuario.getImagen() != null && !usuario.getImagen().isEmpty()) {
+                // Save profile image to filesystem
+                String extension = Base64Img.saveB64(usuario.getImagen(), usuario.getNick());
+                usuario.setImagen("/pfp/" + usuario.getNick() + "." + extension);
+            }
             
             // Hash password and register user
             usuario.setContrasena(SecureUtils.hashPassword(usuario.getContrasena()));
@@ -63,6 +76,9 @@ public class SessionController {
             nuevoUsuario.setContrasena(null);
             
             return ResponseEntity.ok().body(Map.of("registered_user", nuevoUsuario.toMap(), "session_token", sesion.getToken()));
+        } catch (InvalidUsernameException e) {
+            System.err.println("Invalid username during registration: " + e.getMessage());
+            return ResponseEntity.status(400).body(Response.getErrorResponse(400, e.getMessage()));
         } catch (DupedEmailException e) {
             System.err.println("Duped email during registration: " + e.getMessage());
             return ResponseEntity.badRequest().body(Response.getErrorResponse(400, "This email is already registered."));

@@ -1,5 +1,6 @@
 package com.gb02.syumsvc.model.dao.postgresql;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -44,9 +45,9 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         usuario.setIdArtista(idArtista);
         
         // Handle nullable imagen field (bytea) - convert to Base64 String
-        byte[] imagenBytes = rset.getBytes("imagen");
-        if (imagenBytes != null) {
-            usuario.setImagen(java.util.Base64.getEncoder().encodeToString(imagenBytes));
+        String imagen = rset.getString("imagen");
+        if (imagen != null) {
+            usuario.setImagen(imagen);
         } else {
             usuario.setImagen(null);
         }
@@ -194,11 +195,9 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
                 ps.setInt(7, usuario.getIdArtista());
             }
             if (usuario.getImagen() == null) {
-                ps.setNull(8, java.sql.Types.BINARY);
+                ps.setNull(8, java.sql.Types.VARCHAR);
             } else {
-                // Convert Base64 String to byte[]
-                byte[] imagenBytes = java.util.Base64.getDecoder().decode(usuario.getImagen());
-                ps.setBytes(8, imagenBytes);
+                ps.setString(8, usuario.getImagen());
             }
             
             int rows = ps.executeUpdate();
@@ -259,11 +258,9 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
                 ps.setInt(8, usuario.getIdArtista());
             }
             if (usuario.getImagen() == null) {
-                ps.setNull(9, java.sql.Types.BINARY);
+                ps.setNull(9, java.sql.Types.VARCHAR);
             } else {
-                // Convert Base64 String to byte[]
-                byte[] imagenBytes = java.util.Base64.getDecoder().decode(usuario.getImagen());
-                ps.setBytes(9, imagenBytes);
+                ps.setString(9, usuario.getImagen());
             }
             ps.setInt(10, idUsuario);
             ps.executeUpdate();

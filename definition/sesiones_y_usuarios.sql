@@ -19,7 +19,7 @@ CREATE TABLE Usuarios (
     fechaReg DATE DEFAULT current_date,
     email VARCHAR(30) NOT NULL UNIQUE,
     contrasena VARCHAR(64) NOT NULL, 
-    imagen BYTEA,
+    imagen VARCHAR(255),
     idArtista INT
 );
 
