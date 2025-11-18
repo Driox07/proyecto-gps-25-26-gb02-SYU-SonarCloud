@@ -5,17 +5,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SesionDTO implements DTO {
-    private Integer idSesion;
+    private Integer id;
     private String token;
-    private Date fechaValidez;
-    private Integer idUsuario;
+    private Date expirationDate;
+    private Integer userId;
 
-    public Integer getIdSesion() {
-        return idSesion;
+    public Integer getId() {
+        return id;
     }
 
-    public void setIdSesion(Integer idSesion) {
-        this.idSesion = idSesion;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     public String getToken() {
@@ -26,38 +26,38 @@ public class SesionDTO implements DTO {
         this.token = token;
     }
 
-    public Date getFechaValidez() {
-        return fechaValidez;
+    public Date getExpirationDate() {
+        return expirationDate;
     }
 
-    public void setFechaValidez(Date fechaValidez) {
-        this.fechaValidez = fechaValidez;
+    public void setExpirationDate(Date expirationDate) {
+        this.expirationDate = expirationDate;
     }
 
-    public Integer getIdUsuario() {
-        return idUsuario;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
-        map.put("idSesion", this.idSesion);
+        map.put("id", this.id);
         map.put("token", this.token);
-        map.put("fechaValidez", this.fechaValidez);
-        map.put("idUsuario", this.idUsuario);
+        map.put("expirationDate", this.expirationDate);
+        map.put("userId", this.userId);
         return map;
     }
 
     @Override
     public void fromMap(Map<String, Object> map) {
-        idSesion = map.get("idSesion") != null ? (Integer) map.get("idSesion") : null;
+        id = map.get("id") != null ? (Integer) map.get("id") : null;
         token = map.get("token") != null ? (String) map.get("token") : null;
-        fechaValidez = map.get("fechaValidez") != null ? (Date) map.get("fechaValidez") : null;
-        idUsuario = map.get("idUsuario") != null ? (Integer) map.get("idUsuario") : null;
+        expirationDate = map.get("expirationDate") != null ? (Date) map.get("expirationDate") : null;
+        userId = map.get("userId") != null ? (Integer) map.get("userId") : null;
     }
 
 }

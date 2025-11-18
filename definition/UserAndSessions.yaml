@@ -512,28 +512,28 @@ components:
     User:
       type: object
       properties:
-        idUsuario:
+        userId:
           type: integer
           format: int64
           description: Unique identifier for the user
           example: 10
-        nick:
+        username:
           type: string
           description: Username chosen by the user for authentication
           example: asanchez
-        fechaReg:
+        regDate:
           type: string
           description: Date when the user registered in the platform
           example: '2023-10-10 17:32:00.0000'
-        nombre:
+        name:
           type: string
           description: First name of the user
           example: Adrián
-        apellido1:
+        firstLastName:
           type: string
           description: Last name of the user. Will be null if requested user is not the same as the authenticated one
           example: Sánchez
-        apellido2:
+        secondLastName:
           type: string
           description: Second last name of the user. Will be null if requested user is not the same as the authenticated one
           example: López
@@ -541,11 +541,11 @@ components:
           type: string
           description: Email address of the user
           example: asanchez@email.com
-        contrasena:
+        password:
           type: string
           description: Hashed password for user authentication. Will be null if requested user is not the same as the authenticated one
           example: '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5'
-        imagen:
+        image:
           type: string
           description: Path to the profile image (stored in SYU service)
           nullable: true
@@ -558,23 +558,23 @@ components:
     RegistrationUser:
       type: object
       properties:
-        nick:
+        username:
           type: string
           description: Username chosen by the user for authentication
           example: asanchez
-        fechaReg:
+        regDate:
           type: string
           description: Date when the user registered in the platform
           example: '2023-10-10 17:32:00.0000'
-        nombre:
+        name:
           type: string
           description: First name of the user
           example: Adrián
-        apellido1:
+        firstLastName:
           type: string
           description: Last name of the user
           example: Sánchez
-        apellido2:
+        secondLastName:
           type: string
           description: Second last name of the user
           example: López
@@ -582,11 +582,11 @@ components:
           type: string
           description: Email address of the user
           example: asanchez@email.com
-        contrasena:
+        password:
           type: string
           description: Hashed password for user authentication. Will be null if requested user is not the same as the authenticated one
           example: '5994471abb01112afcc18159f6cc74b4f511b99806da59b3caf5a9c173cacfc5'
-        imagen:
+        image:
           type: string
           format: byte
           description: Base64 encoded profile image that will be stored in SYU service

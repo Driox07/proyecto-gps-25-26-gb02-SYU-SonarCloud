@@ -26,10 +26,10 @@ public class PostgresqlSesionDAO implements SesionDAO {
      */
     private SesionDTO mapResultSetToSesion(ResultSet rset) throws Exception {
         SesionDTO sesion = new SesionDTO();
-        sesion.setIdSesion(rset.getInt("idSesion"));
+        sesion.setId(rset.getInt("idSesion"));
         sesion.setToken(rset.getString("token"));
-        sesion.setFechaValidez(rset.getDate("fechaValidez"));
-        sesion.setIdUsuario(rset.getInt("idUsuario"));
+        sesion.setExpirationDate(rset.getDate("fechaValidez"));
+        sesion.setUserId(rset.getInt("idUsuario"));
         return sesion;
     }
 
@@ -130,8 +130,8 @@ public class PostgresqlSesionDAO implements SesionDAO {
             String query = "INSERT INTO Sesiones (token, fechaValidez, idUsuario) VALUES (?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, sesion.getToken());
-            ps.setDate(2, sesion.getFechaValidez());
-            ps.setInt(3, sesion.getIdUsuario());
+            ps.setDate(2, sesion.getExpirationDate());
+            ps.setInt(3, sesion.getUserId());
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected != 1) {
                 throw new UnexpectedErrorException("Insert did not affect exactly one row");
@@ -141,7 +141,7 @@ public class PostgresqlSesionDAO implements SesionDAO {
             System.err.println("Error inserting sesion (PostgresqlSesionDAO)");
             System.err.println("Reason: " + e.getMessage());
             
-            throw new UnexpectedErrorException("Error creating a session for user " + sesion.getIdUsuario());
+            throw new UnexpectedErrorException("Error creating a session for user " + sesion.getUserId());
         }
     }
 

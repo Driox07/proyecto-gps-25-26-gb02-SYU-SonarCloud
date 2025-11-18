@@ -46,7 +46,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Get favorite songs
             CancionFavDTO[] favs = Model.getModel().getCancionesFavByUser(userId);
@@ -86,7 +86,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Create and insert favorite
             CancionFavDTO fav = new CancionFavDTO();
@@ -126,7 +126,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Delete favorite
             Model.getModel().deleteCancionFav(songId, userId);
@@ -166,7 +166,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Get favorite artists
             ArtistaFavDTO[] favs = Model.getModel().getArtistasFavByUser(userId);
@@ -206,7 +206,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Create and insert favorite
             ArtistaFavDTO fav = new ArtistaFavDTO();
@@ -246,7 +246,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Delete favorite
             Model.getModel().deleteArtistaFav(artistId, userId);
@@ -286,7 +286,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Get favorite albums
             AlbumFavDTO[] favs = Model.getModel().getAlbumesFavByUser(userId);
@@ -326,7 +326,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Create and insert favorite
             AlbumFavDTO fav = new AlbumFavDTO();
@@ -366,7 +366,7 @@ public class FavController {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
-            int userId = sesion.getIdUsuario();
+            int userId = sesion.getUserId();
 
             // Delete favorite
             Model.getModel().deleteAlbumFav(albumId, userId);

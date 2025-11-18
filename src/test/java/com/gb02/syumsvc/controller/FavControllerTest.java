@@ -42,7 +42,7 @@ public class FavControllerTest {
         try {
             UsuarioDTO user = Model.getModel().getUsuarioByNick(testUsername);
             if (user != null) {
-                Model.getModel().deleteUsuario(user.getIdUsuario());
+                Model.getModel().deleteUsuario(user.getUserId());
             }
         } catch (Exception e) {
             // User doesn't exist, that's fine
@@ -51,11 +51,11 @@ public class FavControllerTest {
         // Register and login to get auth token
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "Fav",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "Fav",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -66,8 +66,8 @@ public class FavControllerTest {
 
         String loginJson = String.format("""
             {
-                "nick": "%s",
-                "contrasena": "%s"
+                "username": "%s",
+                "password": "%s"
             }
             """, testUsername, testPassword);
 

@@ -114,7 +114,7 @@ public class Model {
         try{
             SesionDTO sesion = df.getSesionDao().obtainSesion(token);
             java.util.Date now = new java.util.Date();
-            if(sesion.getFechaValidez().before(new java.sql.Date(now.getTime()))){
+            if(sesion.getExpirationDate().before(new java.sql.Date(now.getTime()))){
                 throw new SessionExpiredException("Session has expired");
             }
             return sesion;

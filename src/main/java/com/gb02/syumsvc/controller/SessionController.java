@@ -38,7 +38,7 @@ public class SessionController {
     /**
      * Registers a new user and creates an initial session.
      * 
-     * @param payload Map containing user data (nick, contrasena, email, etc.)
+     * @param payload Map containing user data (username, password, email, etc.)
      * @return ResponseEntity with registered user data and session token, or error message
      */
     @PostMapping("/register")
@@ -49,31 +49,31 @@ public class SessionController {
             UsuarioDTO usuario = new UsuarioDTO();
             usuario.fromMap(payload);
 
-            if(usuario.getNick() == null || !UsernameChecker.isValidUsername(usuario.getNick())){
+            if(usuario.getUsername() == null || !UsernameChecker.isValidUsername(usuario.getUsername())){
                 throw new InvalidUsernameException();
             }
 
-            if(usuario.getImagen() != null && !usuario.getImagen().isEmpty()) {
+            if(usuario.getImage() != null && !usuario.getImage().isEmpty()) {
                 // Save profile image to filesystem
-                String extension = Base64Img.saveB64(usuario.getImagen(), usuario.getNick());
-                usuario.setImagen("/pfp/" + usuario.getNick() + "." + extension);
+                String extension = Base64Img.saveB64(usuario.getImage(), usuario.getUsername());
+                usuario.setImage("/pfp/" + usuario.getUsername() + "." + extension);
             }
             
             // Hash password and register user
-            usuario.setContrasena(SecureUtils.hashPassword(usuario.getContrasena()));
+            usuario.setPassword(SecureUtils.hashPassword(usuario.getPassword()));
             UsuarioDTO nuevoUsuario = model.registrarUsuario(usuario);
             
             // Create initial session for the new user
             SesionDTO sesion = new SesionDTO();
-            sesion.setIdUsuario(nuevoUsuario.getIdUsuario());
+            sesion.setUserId(nuevoUsuario.getUserId());
             java.util.Date expDate = new java.util.Date();
             expDate.setTime(expDate.getTime() + SESSION_DURATION_MS);
-            sesion.setFechaValidez(new Date(expDate.getTime()));
+            sesion.setExpirationDate(new Date(expDate.getTime()));
             sesion.setToken(SecureUtils.generateSessionToken());
             Model.getModel().insertarSesion(sesion);
             
             // Remove password from response for security
-            nuevoUsuario.setContrasena(null);
+            nuevoUsuario.setPassword(null);
             
             return ResponseEntity.ok().body(Map.of("registered_user", nuevoUsuario.toMap(), "session_token", sesion.getToken()));
         } catch (InvalidUsernameException e) {
@@ -93,39 +93,39 @@ public class SessionController {
 
     /**
      * Authenticates a user and creates a new session.
-     * Accepts either username (nick) or email as identifier.
+     * Accepts either username or email as identifier.
      * 
-     * @param payload Map containing 'nick' (username or email) and 'contrasena' (password)
+     * @param payload Map containing 'username' (username or email) and 'password'
      * @return ResponseEntity with success message and session token, or error message
      */
     @PostMapping("/login")
     public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String, Object> payload) {
         try {
             // Validate required fields
-            if (!payload.containsKey("nick") || !payload.containsKey("contrasena")) {
-                return ResponseEntity.badRequest().body(Response.getErrorResponse(400, "Nick and password are required."));
+            if (!payload.containsKey("username") || !payload.containsKey("password")) {
+                return ResponseEntity.badRequest().body(Response.getErrorResponse(400, "Username and password are required."));
             }
             
-            // Fetch user by nick or email (auto-detect if contains @)
+            // Fetch user by username or email (auto-detect if contains @)
             UsuarioDTO usuario;
-            if (payload.get("nick").toString().contains("@")) {
-                usuario = Model.getModel().getUsuarioByMail(payload.get("nick").toString());
+            if (payload.get("username").toString().contains("@")) {
+                usuario = Model.getModel().getUsuarioByMail(payload.get("username").toString());
             } else {
-                usuario = Model.getModel().getUsuarioByNick(payload.get("nick").toString());
+                usuario = Model.getModel().getUsuarioByNick(payload.get("username").toString());
             }
             
             // Verify password
-            Boolean passwordMatch = SecureUtils.verifyPassword(payload.get("contrasena").toString(), usuario.getContrasena());
+            Boolean passwordMatch = SecureUtils.verifyPassword(payload.get("password").toString(), usuario.getPassword());
             if (!passwordMatch) {
                 return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Wrong user or password."));
             }
             
             // Create new session
             SesionDTO sesion = new SesionDTO();
-            sesion.setIdUsuario(usuario.getIdUsuario());
+            sesion.setUserId(usuario.getUserId());
             java.util.Date expDate = new java.util.Date();
             expDate.setTime(expDate.getTime() + SESSION_DURATION_MS);
-            sesion.setFechaValidez(new Date(expDate.getTime()));
+            sesion.setExpirationDate(new Date(expDate.getTime()));
             sesion.setToken(SecureUtils.generateSessionToken());
             Model.getModel().insertarSesion(sesion);
             
@@ -157,8 +157,8 @@ public class SessionController {
                 return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
             }
             
-            UsuarioDTO usuario = Model.getModel().getUsuario(sesion.getIdUsuario());
-            usuario.setContrasena(null); // Remove password from response
+            UsuarioDTO usuario = Model.getModel().getUsuario(sesion.getUserId());
+            usuario.setPassword(null); // Remove password from response
             return ResponseEntity.ok().body(usuario.toMap());
         } catch (SessionExpiredException e) {
             System.err.println("Session expired during authentication: " + e.getMessage());
@@ -190,7 +190,7 @@ public class SessionController {
                 return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
             }
             
-            Model.getModel().deleteSesion(sesion.getIdSesion());
+            Model.getModel().deleteSesion(sesion.getId());
             return ResponseEntity.ok().body(Response.getOnlyMessage("Logged out successfully"));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during logout: " + e.getMessage());

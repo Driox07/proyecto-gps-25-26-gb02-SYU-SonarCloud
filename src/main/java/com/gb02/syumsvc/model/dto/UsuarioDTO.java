@@ -4,63 +4,63 @@ import java.sql.Date;
 import java.util.Map;
 
 public class UsuarioDTO implements DTO {
-    private Integer idUsuario;
-    private String nick;
-    private String nombre;
-    private String apellido1;
-    private String apellido2;
-    private Date fechaReg;
+    private Integer userId;
+    private String username;
+    private String name;
+    private String firstLastName;
+    private String secondLastName;
+    private Date regDate;
     private String email;
-    private String contrasena;
-    private Integer idArtista;
-    private String imagen;
+    private String password;
+    private Integer relatedArtist;
+    private String image;
 
-    public Integer getIdUsuario() {
-        return idUsuario;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setIdUsuario(Integer idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setUserId(Integer userId) {
+        this.userId = userId;
     }
 
-    public String getNick() {
-        return nick;
+    public String getUsername() {
+        return username;
     }
 
-    public void setNick(String nick) {
-        this.nick = nick;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    public String getNombre() {
-        return nombre;
+    public String getName() {
+        return name;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String getApellido1() {
-        return apellido1;
+    public String getFirstLastName() {
+        return firstLastName;
     }
 
-    public void setApellido1(String apellido1) {
-        this.apellido1 = apellido1;
+    public void setFirstLastName(String firstLastName) {
+        this.firstLastName = firstLastName;
     }
 
-    public String getApellido2() {
-        return apellido2;
+    public String getSecondLastName() {
+        return secondLastName;
     }
 
-    public void setApellido2(String apellido2) {
-        this.apellido2 = apellido2;
+    public void setSecondLastName(String secondLastName) {
+        this.secondLastName = secondLastName;
     }
 
-    public Date getFechaReg() {
-        return fechaReg;
+    public Date getRegDate() {
+        return regDate;
     }
 
-    public void setFechaReg(Date fechaReg) {
-        this.fechaReg = fechaReg;
+    public void setRegDate(Date regDate) {
+        this.regDate = regDate;
     }
 
     public String getEmail() {
@@ -71,57 +71,57 @@ public class UsuarioDTO implements DTO {
         this.email = email;
     }
 
-    public String getContrasena() {
-        return contrasena;
+    public String getPassword() {
+        return password;
     }
 
-    public void setContrasena(String contrasena) {
-        this.contrasena = contrasena;
+    public void setPassword(String password) {
+        this.password = password;
     }
 
-    public Integer getIdArtista() {
-        return idArtista;
+    public Integer getRelatedArtist() {
+        return relatedArtist;
     }
 
-    public void setIdArtista(Integer idArtista) {
-        this.idArtista = idArtista;
+    public void setRelatedArtist(Integer relatedArtist) {
+        this.relatedArtist = relatedArtist;
     }
 
-    public String getImagen() {
-        return imagen;
+    public String getImage() {
+        return image;
     }
 
-    public void setImagen(String imagen) {
-        this.imagen = imagen;
+    public void setImage(String image) {
+        this.image = image;
     }
     
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = new java.util.HashMap<>();
-        map.put("idUsuario", this.idUsuario);
-        map.put("nick", this.nick);
-        map.put("nombre", this.nombre);
-        map.put("apellido1", this.apellido1);
-        map.put("apellido2", this.apellido2);
-        map.put("fechaReg", this.fechaReg);
+        map.put("userId", this.userId);
+        map.put("username", this.username);
+        map.put("name", this.name);
+        map.put("firstLastName", this.firstLastName);
+        map.put("secondLastName", this.secondLastName);
+        map.put("regDate", this.regDate);
         map.put("email", this.email);
-        map.put("contrasena", this.contrasena);
-        map.put("idArtista", this.idArtista);
-        map.put("imagen", this.imagen);
+        map.put("password", this.password);
+        map.put("relatedArtist", this.relatedArtist);
+        map.put("image", this.image);
         return map;
     }
 
     @Override
     public void fromMap(Map<String, Object> map) {
-        idUsuario = map.get("idUsuario") != null ? (Integer) map.get("idUsuario") : null;
-        nick = map.get("nick") != null ? (String) map.get("nick") : null;
-        nombre = map.get("nombre") != null ? (String) map.get("nombre") : null;
-        apellido1 = map.get("apellido1") != null ? (String) map.get("apellido1") : null;
-        apellido2 = map.get("apellido2") != null ? (String) map.get("apellido2") : null;
-        fechaReg = map.get("fechaReg") != null ? (Date) map.get("fechaReg") : null;
+        userId = map.get("userId") != null ? (Integer) map.get("userId") : null;
+        username = map.get("username") != null ? (String) map.get("username") : null;
+        name = map.get("name") != null ? (String) map.get("name") : null;
+        firstLastName = map.get("firstLastName") != null ? (String) map.get("firstLastName") : null;
+        secondLastName = map.get("secondLastName") != null ? (String) map.get("secondLastName") : null;
+        regDate = map.get("regDate") != null ? (Date) map.get("regDate") : null;
         email = map.get("email") != null ? (String) map.get("email") : null;
-        contrasena = map.get("contrasena") != null ? (String) map.get("contrasena") : null;
-        idArtista = map.get("idArtista") != null ? (Integer) map.get("idArtista") : null;
-        imagen = map.get("imagen") != null ? (String) map.get("imagen") : null;
+        password = map.get("password") != null ? (String) map.get("password") : null;
+        relatedArtist = map.get("relatedArtist") != null ? (Integer) map.get("relatedArtist") : null;
+        image = map.get("image") != null ? (String) map.get("image") : null;
     }
 }

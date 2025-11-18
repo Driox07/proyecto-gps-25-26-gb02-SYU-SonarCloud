@@ -43,7 +43,7 @@ public class SessionControllerTest {
         try {
             UsuarioDTO user = Model.getModel().getUsuarioByNick(testUsername);
             if (user != null) {
-                Model.getModel().deleteUsuario(user.getIdUsuario());
+                Model.getModel().deleteUsuario(user.getUserId());
             }
         } catch (Exception e) {
             // User doesn't exist, that's fine
@@ -54,12 +54,12 @@ public class SessionControllerTest {
     public void testRegisterUser_Success() throws Exception {
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
-                "apellido2": "Session",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
+                "secondLastName": "Session",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -67,7 +67,7 @@ public class SessionControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(registerJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.registered_user.nick").value(testUsername))
+                .andExpect(jsonPath("$.registered_user.username").value(testUsername))
                 .andExpect(jsonPath("$.registered_user.email").value(testEmail));
     }
 
@@ -76,11 +76,11 @@ public class SessionControllerTest {
         // First registration
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -92,11 +92,11 @@ public class SessionControllerTest {
         // Try to register again with same username
         String duplicateJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test2",
-                "apellido1": "User2",
+                "username": "%s",
+                "name": "Test2",
+                "firstLastName": "User2",
                 "email": "other@test.com",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testPassword);
 
@@ -112,11 +112,11 @@ public class SessionControllerTest {
         // Register user first
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -128,8 +128,8 @@ public class SessionControllerTest {
         // Now login
         String loginJson = String.format("""
             {
-                "nick": "%s",
-                "contrasena": "%s"
+                "username": "%s",
+                "password": "%s"
             }
             """, testUsername, testPassword);
 
@@ -145,8 +145,8 @@ public class SessionControllerTest {
     public void testLogin_InvalidCredentials() throws Exception {
         String loginJson = String.format("""
             {
-                "nick": "nonexistentuser_%s",
-                "contrasena": "wrongpassword"
+                "username": "nonexistentuser_%s",
+                "password": "wrongpassword"
             }
             """, System.currentTimeMillis());
 
@@ -162,11 +162,11 @@ public class SessionControllerTest {
         // Register and login to get token
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -177,8 +177,8 @@ public class SessionControllerTest {
 
         String loginJson = String.format("""
             {
-                "nick": "%s",
-                "contrasena": "%s"
+                "username": "%s",
+                "password": "%s"
             }
             """, testUsername, testPassword);
 
@@ -197,7 +197,7 @@ public class SessionControllerTest {
         mockMvc.perform(get("/auth")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nick").value(testUsername));
+                .andExpect(jsonPath("$.username").value(testUsername));
     }
 
     @Test
@@ -220,11 +220,11 @@ public class SessionControllerTest {
         // Register and login
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -235,8 +235,8 @@ public class SessionControllerTest {
 
         String loginJson = String.format("""
             {
-                "nick": "%s",
-                "contrasena": "%s"
+                "username": "%s",
+                "password": "%s"
             }
             """, testUsername, testPassword);
 
@@ -269,19 +269,19 @@ public class SessionControllerTest {
         String longNick = "a".repeat(31); // 31 characters
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
                 "email": "test@example.com",
-                "contrasena": "testpassword123"
+                "password": "testpassword123"
             }
             """, longNick);
 
         mockMvc.perform(post("/register")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(registerJson))
-                .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.code").value(500))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value(400))
                 .andExpect(jsonPath("$.message").exists());
     }
 
@@ -291,11 +291,11 @@ public class SessionControllerTest {
         String longEmail = "verylongemailaddress12345@test.com"; // 35 characters
         String registerJson = String.format("""
             {
-                "nick": "shortuser",
-                "nombre": "Test",
-                "apellido1": "User",
+                "username": "shortuser",
+                "name": "Test",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "testpassword123"
+                "password": "testpassword123"
             }
             """, longEmail);
 

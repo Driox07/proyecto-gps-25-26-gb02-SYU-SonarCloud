@@ -42,7 +42,7 @@ public class UserControllerTest {
         try {
             UsuarioDTO user = Model.getModel().getUsuarioByNick(testUsername);
             if (user != null) {
-                Model.getModel().deleteUsuario(user.getIdUsuario());
+                Model.getModel().deleteUsuario(user.getUserId());
             }
         } catch (Exception e) {
             // User doesn't exist, that's fine
@@ -51,12 +51,12 @@ public class UserControllerTest {
         // Register and login to get auth token
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Test",
-                "apellido1": "User",
-                "apellido2": "Controller",
+                "username": "%s",
+                "name": "Test",
+                "firstLastName": "User",
+                "secondLastName": "Controller",
                 "email": "%s",
-                "contrasena": "%s"
+                "password": "%s"
             }
             """, testUsername, testEmail, testPassword);
 
@@ -67,8 +67,8 @@ public class UserControllerTest {
 
         String loginJson = String.format("""
             {
-                "nick": "%s",
-                "contrasena": "%s"
+                "username": "%s",
+                "password": "%s"
             }
             """, testUsername, testPassword);
 
@@ -89,10 +89,10 @@ public class UserControllerTest {
         mockMvc.perform(get("/user/" + testUsername)
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nick").value(testUsername))
+                .andExpect(jsonPath("$.username").value(testUsername))
                 .andExpect(jsonPath("$.email").value(testEmail))
-                .andExpect(jsonPath("$.nombre").value("Test"))
-                .andExpect(jsonPath("$.apellido1").value("User"));
+                .andExpect(jsonPath("$.name").value("Test"))
+                .andExpect(jsonPath("$.firstLastName").value("User"));
     }
 
     @Test
@@ -107,17 +107,17 @@ public class UserControllerTest {
     public void testGetUser_NotAuthorizedFields() throws Exception {
         mockMvc.perform(get("/user/" + testUsername))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.apellido1").isEmpty())
-                .andExpect(jsonPath("$.apellido2").isEmpty())
-                .andExpect(jsonPath("$.contrasena").isEmpty());
+                .andExpect(jsonPath("$.firstLastName").isEmpty())
+                .andExpect(jsonPath("$.secondLastName").isEmpty())
+                .andExpect(jsonPath("$.password").isEmpty());
     }
 
     @Test
     public void testPatchUser_Success() throws Exception {
         String updateJson = """
             {
-                "nombre": "UpdatedName",
-                "apellido1": "UpdatedLastName",
+                "name": "UpdatedName",
+                "firstLastName": "UpdatedLastName",
                 "email": "%s"
             }
             """.formatted(testEmail);
@@ -132,8 +132,8 @@ public class UserControllerTest {
         mockMvc.perform(get("/user/" + testUsername)
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.nombre").value("UpdatedName"))
-                .andExpect(jsonPath("$.apellido1").value("UpdatedLastName"))
+                .andExpect(jsonPath("$.name").value("UpdatedName"))
+                .andExpect(jsonPath("$.firstLastName").value("UpdatedLastName"))
                 .andExpect(jsonPath("$.email").value(testEmail));
     }
 
@@ -145,11 +145,11 @@ public class UserControllerTest {
         
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Other",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Other",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "password123"
+                "password": "password123"
             }
             """, otherUsername, otherEmail);
 
@@ -161,8 +161,8 @@ public class UserControllerTest {
         // Try to update other user's profile
         String updateJson = """
             {
-                "nombre": "Hacked",
-                "apellido1": "Name"
+                "name": "Hacked",
+                "firstLastName": "Name"
             }
             """;
 
@@ -195,11 +195,11 @@ public class UserControllerTest {
         
         String registerJson = String.format("""
             {
-                "nick": "%s",
-                "nombre": "Other",
-                "apellido1": "User",
+                "username": "%s",
+                "name": "Other",
+                "firstLastName": "User",
                 "email": "%s",
-                "contrasena": "password123"
+                "password": "password123"
             }
             """, otherUsername, otherEmail);
 

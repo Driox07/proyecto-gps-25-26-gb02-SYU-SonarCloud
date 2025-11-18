@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 public class UserController {
 
-    private final String TYA_SERVER = "http://10.1.1.2:8081";
+    private final String TYA_SERVER = "http://10.1.1.4:8081";
     private final RestTemplate restTemplate;
     
     public UserController() {
@@ -66,7 +66,7 @@ public class UserController {
             // Attempt to get session only if token is present
             if (sessionToken != null && !sessionToken.isBlank()) {
                 try {
-                    currentUserId = Model.getModel().getSessionByToken(sessionToken).getIdUsuario();
+                    currentUserId = Model.getModel().getSessionByToken(sessionToken).getUserId();
                 } catch (SessionNotFoundException | SessionExpiredException e) {
                     currentUserId = -1; // Continue as unauthenticated
                 } catch (Exception e) {
@@ -75,10 +75,10 @@ public class UserController {
             }
             
             // Hide private data if not the current user
-            if (requestedUser.getIdUsuario() != currentUserId) {
-                requestedUser.setContrasena(null);
-                requestedUser.setApellido1(null);
-                requestedUser.setApellido2(null);
+            if (requestedUser.getUserId() != currentUserId) {
+                requestedUser.setPassword(null);
+                requestedUser.setFirstLastName(null);
+                requestedUser.setSecondLastName(null);
             }
             
             return ResponseEntity.ok().body(requestedUser.toMap());
@@ -106,24 +106,24 @@ public class UserController {
     private Map<String, Object> applyUserChanges(Map<String, Object> baseUser, Map<String, Object> changes) {
         for (String key : changes.keySet()) {
             Object value = changes.get(key);
-            if (key.equals("contrasena")) {
+            if (key.equals("password")) {
                 value = com.gb02.syumsvc.utils.SecureUtils.hashPassword((String) value);
             }
-            if (key.equals("imagen")){
+            if (key.equals("image")){
                 String b64 = (String) value;
-                String nick = changes.containsKey("nick") ? (String) changes.get("nick") : (String) baseUser.get("nick");
+                String nick = changes.containsKey("username") ? (String) changes.get("username") : (String) baseUser.get("username");
                 String extension = Base64Img.saveB64(b64, nick);
                 value = "/pfp/" + nick + "." + extension;
             }
-            if (key.equals("nick")){
-                if(!UsernameChecker.isValidUsername((String)changes.get("nick"))){
+            if (key.equals("username")){
+                if(!UsernameChecker.isValidUsername((String)changes.get("username"))){
                     throw new InvalidUsernameException();
                 }
-                if(baseUser.get("imagen") != null && !baseUser.get("imagen").toString().isBlank()){
-                    String oldImagePath = (String) baseUser.get("imagen");
-                    String newNick = (String) changes.get("nick");
+                if(baseUser.get("image") != null && !baseUser.get("image").toString().isBlank()){
+                    String oldImagePath = (String) baseUser.get("image");
+                    String newNick = (String) changes.get("username");
                     String newImagePath = Base64Img.changeNick(oldImagePath, newNick);
-                    baseUser.put("imagen", newImagePath);
+                    baseUser.put("image", newImagePath);
                 }
             }
             baseUser.put(key, value);
@@ -144,10 +144,10 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> patchUser(@PathVariable String nick, @RequestBody Map<String, Object> payload, @CookieValue(value = "oversound_auth", required = true) String sessionToken) {
         try {
             UsuarioDTO requestedUser = Model.getModel().getUsuarioByNick(nick);
-            int currentUserId = Model.getModel().getSessionByToken(sessionToken).getIdUsuario();
+            int currentUserId = Model.getModel().getSessionByToken(sessionToken).getUserId();
             
             // Authorization check: user can only modify their own data
-            if (requestedUser.getIdUsuario() != currentUserId) {
+            if (requestedUser.getUserId() != currentUserId) {
                 return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to modify this user's data."));
             }
             
@@ -156,7 +156,7 @@ public class UserController {
             updatedUser.fromMap(applyUserChanges(requestedUser.toMap(), payload));
 
             Model.getModel().updateUsuario(currentUserId, updatedUser);
-            updatedUser.setContrasena(null);
+            updatedUser.setPassword(null);
             return ResponseEntity.ok().body(updatedUser.toMap());
         } catch (InvalidUsernameException e) {
             System.err.println("Invalid username during user update: " + e.getMessage());
@@ -192,14 +192,14 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> deleteUser(@PathVariable String nick, @CookieValue(value = "oversound_auth", required = true) String sessionToken) {
         try {
             UsuarioDTO requestedUser = Model.getModel().getUsuarioByNick(nick);
-            int currentUserId = Model.getModel().getSessionByToken(sessionToken).getIdUsuario();
+            int currentUserId = Model.getModel().getSessionByToken(sessionToken).getUserId();
             
             // Authorization check: user can only delete their own account
-            if (requestedUser.getIdUsuario() != currentUserId) {
+            if (requestedUser.getUserId() != currentUserId) {
                 return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to delete this user."));
             }
-            String img = requestedUser.getImagen();
-            Model.getModel().deleteUsuario(requestedUser.getIdUsuario());
+            String img = requestedUser.getImage();
+            Model.getModel().deleteUsuario(requestedUser.getUserId());
             if (img != null && !img.isBlank()) {
                 java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/static" + img);
                 try {
@@ -248,9 +248,9 @@ public class UserController {
             }
 
             SesionDTO sesion = Model.getModel().getSessionByToken(token);
-            int currentUserId = sesion.getIdUsuario();
+            int currentUserId = sesion.getUserId();
             UsuarioDTO user = Model.getModel().getUsuario(currentUserId);
-            if (user.getIdArtista() != null && getArtist(user.getIdArtista()) != null) {
+            if (user.getRelatedArtist() != null && getArtist(user.getRelatedArtist()) != null) {
                 return ResponseEntity.status(400).body(Response.getErrorResponse(400, "User is already linked to an artist."));
             }
 
@@ -260,9 +260,9 @@ public class UserController {
             }
 
             // Update user with new artist id
-            user.setIdArtista(returnedArtistId);
+            user.setRelatedArtist(returnedArtistId);
             Model.getModel().updateUsuario(currentUserId, user);
-            user.setContrasena(null);
+            user.setPassword(null);
 
             return ResponseEntity.ok().body(user.toMap());
         } catch (SessionNotFoundException e) {
