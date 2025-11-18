@@ -8,7 +8,6 @@ import java.util.ArrayList;
 
 import org.postgresql.util.PSQLException;
 
-import com.gb02.syumsvc.config.DebugConfig;
 import com.gb02.syumsvc.exceptions.FavAlreadyExistsException;
 import com.gb02.syumsvc.exceptions.FavNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;

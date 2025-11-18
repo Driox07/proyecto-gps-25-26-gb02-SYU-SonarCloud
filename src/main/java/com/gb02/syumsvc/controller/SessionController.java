@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.gb02.syumsvc.config.DebugConfig;
 import com.gb02.syumsvc.exceptions.DupedEmailException;
 import com.gb02.syumsvc.exceptions.DupedUsernameException;
 import com.gb02.syumsvc.exceptions.SessionExpiredException;

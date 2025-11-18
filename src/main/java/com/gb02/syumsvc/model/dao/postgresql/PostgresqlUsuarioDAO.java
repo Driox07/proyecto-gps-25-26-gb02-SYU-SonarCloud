@@ -43,6 +43,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         Integer idArtista = (Integer) rset.getObject("idArtista");
         usuario.setIdArtista(idArtista);
         
+        // Handle nullable imagen field (bytea) - convert to Base64 String
+        byte[] imagenBytes = rset.getBytes("imagen");
+        if (imagenBytes != null) {
+            usuario.setImagen(java.util.Base64.getEncoder().encodeToString(imagenBytes));
+        } else {
+            usuario.setImagen(null);
+        }
+        
         return usuario;
     }
 
@@ -172,7 +180,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
     @Override
     public int insertUsuario(UsuarioDTO usuario) throws UnexpectedErrorException, DupedUsernameException, DupedEmailException {
         try (Connection connection = PostgresqlConnector.getConnection()) {
-            String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, usuario.getNick());
             ps.setString(2, usuario.getNombre());
@@ -184,6 +192,13 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
                 ps.setNull(7, java.sql.Types.INTEGER);
             } else {
                 ps.setInt(7, usuario.getIdArtista());
+            }
+            if (usuario.getImagen() == null) {
+                ps.setNull(8, java.sql.Types.BINARY);
+            } else {
+                // Convert Base64 String to byte[]
+                byte[] imagenBytes = java.util.Base64.getDecoder().decode(usuario.getImagen());
+                ps.setBytes(8, imagenBytes);
             }
             
             int rows = ps.executeUpdate();
@@ -229,7 +244,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
     @Override
     public boolean modifyUsuario(int idUsuario, UsuarioDTO usuario) {
         try (Connection connection = PostgresqlConnector.getConnection()) {
-            String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, fechaReg = ?, email = ?, contrasena = ?, idArtista = ? WHERE idUsuario = ?";
+            String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, fechaReg = ?, email = ?, contrasena = ?, idArtista = ?, imagen = ? WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, usuario.getNick());
             ps.setString(2, usuario.getNombre());
@@ -238,8 +253,19 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             ps.setDate(5, usuario.getFechaReg());
             ps.setString(6, usuario.getEmail());
             ps.setString(7, usuario.getContrasena());
-            ps.setInt(8, usuario.getIdArtista());
-            ps.setInt(9, idUsuario);
+            if (usuario.getIdArtista() == null) {
+                ps.setNull(8, java.sql.Types.INTEGER);
+            } else {
+                ps.setInt(8, usuario.getIdArtista());
+            }
+            if (usuario.getImagen() == null) {
+                ps.setNull(9, java.sql.Types.BINARY);
+            } else {
+                // Convert Base64 String to byte[]
+                byte[] imagenBytes = java.util.Base64.getDecoder().decode(usuario.getImagen());
+                ps.setBytes(9, imagenBytes);
+            }
+            ps.setInt(10, idUsuario);
             ps.executeUpdate();
             return true;
         } catch (Exception e) {

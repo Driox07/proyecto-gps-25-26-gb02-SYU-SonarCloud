@@ -3,7 +3,6 @@ package com.gb02.syumsvc.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import com.gb02.syumsvc.config.DebugConfig;
 import com.gb02.syumsvc.exceptions.SessionExpiredException;
 import com.gb02.syumsvc.exceptions.SessionNotFoundException;
 import com.gb02.syumsvc.exceptions.UnexpectedErrorException;
@@ -13,7 +12,6 @@ import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
 import com.gb02.syumsvc.utils.Response;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.http.HttpEntity;

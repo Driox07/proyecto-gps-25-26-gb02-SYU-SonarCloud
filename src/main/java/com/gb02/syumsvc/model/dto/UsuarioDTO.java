@@ -13,6 +13,7 @@ public class UsuarioDTO implements DTO {
     private String email;
     private String contrasena;
     private Integer idArtista;
+    private String imagen;
 
     public Integer getIdUsuario() {
         return idUsuario;
@@ -85,6 +86,14 @@ public class UsuarioDTO implements DTO {
     public void setIdArtista(Integer idArtista) {
         this.idArtista = idArtista;
     }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
+    }
     
     @Override
     public Map<String, Object> toMap() {
@@ -98,6 +107,7 @@ public class UsuarioDTO implements DTO {
         map.put("email", this.email);
         map.put("contrasena", this.contrasena);
         map.put("idArtista", this.idArtista);
+        map.put("imagen", this.imagen);
         return map;
     }
 
@@ -112,5 +122,6 @@ public class UsuarioDTO implements DTO {
         email = map.get("email") != null ? (String) map.get("email") : null;
         contrasena = map.get("contrasena") != null ? (String) map.get("contrasena") : null;
         idArtista = map.get("idArtista") != null ? (Integer) map.get("idArtista") : null;
+        imagen = map.get("imagen") != null ? (String) map.get("imagen") : null;
     }
 }
