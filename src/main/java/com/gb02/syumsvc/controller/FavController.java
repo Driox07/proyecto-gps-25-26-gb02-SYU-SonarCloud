@@ -57,7 +57,6 @@ public class FavController {
                 songIds.add(fav.getIdCancion());
             }
 
-            // Return the list directly (e.g. [1,2,3]) instead of {"ids": [...]}
             return ResponseEntity.ok().body(songIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite songs: " + e.getMessage());
@@ -178,7 +177,6 @@ public class FavController {
                 artistIds.add(fav.getIdArtista());
             }
 
-            // Return the list directly (e.g. [1,2,3]) instead of {"ids": [...]}
             return ResponseEntity.ok().body(artistIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite artists: " + e.getMessage());
@@ -299,7 +297,6 @@ public class FavController {
                 albumIds.add(fav.getIdAlbum());
             }
 
-            // Return the list directly (e.g. [1,2,3]) instead of {"ids": [...]}
             return ResponseEntity.ok().body(albumIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite albums: " + e.getMessage());
