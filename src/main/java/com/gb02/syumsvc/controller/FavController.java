@@ -42,7 +42,7 @@ public class FavController {
      * @return ResponseEntity with list of song IDs, or error message
      */
     @GetMapping("/favs/songs")
-    public ResponseEntity<Map<String, Object>> getFavSongs(@CookieValue(value = "oversound_auth", required = true) String sessionToken) {
+    public ResponseEntity<Object> getFavSongs(@CookieValue(value = "oversound_auth", required = true) String sessionToken) {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
@@ -57,7 +57,8 @@ public class FavController {
                 songIds.add(fav.getIdCancion());
             }
 
-            return ResponseEntity.ok().body(Map.of("ids", songIds));
+            // Return the list directly (e.g. [1,2,3]) instead of {"ids": [...]}
+            return ResponseEntity.ok().body(songIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite songs: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
@@ -162,7 +163,7 @@ public class FavController {
      * @return ResponseEntity with list of artist IDs, or error message
      */
     @GetMapping("/favs/artists")
-    public ResponseEntity<Map<String, Object>> getFavArtists(@CookieValue(value = "oversound_auth", required = true) String sessionToken) {
+    public ResponseEntity<Object> getFavArtists(@CookieValue(value = "oversound_auth", required = true) String sessionToken) {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
@@ -177,7 +178,8 @@ public class FavController {
                 artistIds.add(fav.getIdArtista());
             }
 
-            return ResponseEntity.ok().body(Map.of("ids", artistIds));
+            // Return the list directly (e.g. [1,2,3]) instead of {"ids": [...]}
+            return ResponseEntity.ok().body(artistIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite artists: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
@@ -282,7 +284,7 @@ public class FavController {
      * @return ResponseEntity with list of album IDs, or error message
      */
     @GetMapping("/favs/albums")
-    public ResponseEntity<Map<String, Object>> getFavAlbums(@CookieValue(value = "oversound_auth", required = true) String sessionToken) {
+    public ResponseEntity<Object> getFavAlbums(@CookieValue(value = "oversound_auth", required = true) String sessionToken) {
         try {
             // Get user ID from session
             SesionDTO sesion = Model.getModel().getSessionByToken(sessionToken);
@@ -297,7 +299,8 @@ public class FavController {
                 albumIds.add(fav.getIdAlbum());
             }
 
-            return ResponseEntity.ok().body(Map.of("ids", albumIds));
+            // Return the list directly (e.g. [1,2,3]) instead of {"ids": [...]}
+            return ResponseEntity.ok().body(albumIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite albums: " + e.getMessage());
             return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));

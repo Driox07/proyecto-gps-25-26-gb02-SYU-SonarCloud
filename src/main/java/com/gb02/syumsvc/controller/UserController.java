@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 public class UserController {
 
-    private final String TYA_SERVER = "http://10.1.1.4:8081";
+    private final String TYA_SERVER = "http://localhost:8081";
     private final RestTemplate restTemplate;
     
     public UserController() {
