@@ -12,7 +12,7 @@ public class UsuarioDTO implements DTO {
     private Date regDate;
     private String email;
     private String password;
-    private Integer relatedArtist;
+    private Integer artistId;
     private String image;
 
     public Integer getUserId() {
@@ -79,12 +79,12 @@ public class UsuarioDTO implements DTO {
         this.password = password;
     }
 
-    public Integer getRelatedArtist() {
-        return relatedArtist;
+    public Integer getArtistId() {
+        return artistId;
     }
 
-    public void setRelatedArtist(Integer relatedArtist) {
-        this.relatedArtist = relatedArtist;
+    public void setArtistId(Integer artistId) {
+        this.artistId = artistId;
     }
 
     public String getImage() {
@@ -106,7 +106,7 @@ public class UsuarioDTO implements DTO {
         map.put("regDate", this.regDate);
         map.put("email", this.email);
         map.put("password", this.password);
-        map.put("relatedArtist", this.relatedArtist);
+        map.put("artistId", this.artistId);
         map.put("image", this.image);
         return map;
     }
@@ -121,7 +121,7 @@ public class UsuarioDTO implements DTO {
         regDate = map.get("regDate") != null ? (Date) map.get("regDate") : null;
         email = map.get("email") != null ? (String) map.get("email") : null;
         password = map.get("password") != null ? (String) map.get("password") : null;
-        relatedArtist = map.get("relatedArtist") != null ? (Integer) map.get("relatedArtist") : null;
+        artistId = map.get("artistId") != null ? (Integer) map.get("artistId") : null;
         image = map.get("image") != null ? (String) map.get("image") : null;
     }
 }
