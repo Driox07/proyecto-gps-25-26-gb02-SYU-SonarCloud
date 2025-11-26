@@ -90,8 +90,8 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/songs")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isArray())
-                .andExpect(jsonPath("$.ids").isEmpty());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -107,8 +107,8 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/songs")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isArray())
-                .andExpect(jsonPath("$.ids[0]").value(songId));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").value(songId));
     }
 
     @Test
@@ -146,7 +146,7 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/songs")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isEmpty());
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -173,8 +173,8 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/artists")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isArray())
-                .andExpect(jsonPath("$.ids").isEmpty());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -190,8 +190,8 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/artists")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isArray())
-                .andExpect(jsonPath("$.ids[0]").value(artistId));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").value(artistId));
     }
 
     @Test
@@ -229,7 +229,7 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/artists")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isEmpty());
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -249,8 +249,8 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/albums")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isArray())
-                .andExpect(jsonPath("$.ids").isEmpty());
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -266,8 +266,8 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/albums")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isArray())
-                .andExpect(jsonPath("$.ids[0]").value(albumId));
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0]").value(albumId));
     }
 
     @Test
@@ -305,7 +305,7 @@ public class FavControllerTest {
         mockMvc.perform(get("/favs/albums")
                 .cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids").isEmpty());
+                .andExpect(jsonPath("$").isEmpty());
     }
 
     @Test
@@ -337,14 +337,14 @@ public class FavControllerTest {
         // Verify all favorites
         mockMvc.perform(get("/favs/songs").cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids.length()").value(3));
+                .andExpect(jsonPath("$.length()").value(3));
 
         mockMvc.perform(get("/favs/artists").cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids.length()").value(2));
+                .andExpect(jsonPath("$.length()").value(2));
 
         mockMvc.perform(get("/favs/albums").cookie(authCookie))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.ids.length()").value(1));
+                .andExpect(jsonPath("$.length()").value(1));
     }
 }

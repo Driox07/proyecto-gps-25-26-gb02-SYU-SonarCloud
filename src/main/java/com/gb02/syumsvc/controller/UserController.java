@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RestController
 public class UserController {
 
-    private final String TYA_SERVER = "http://10.1.1.4:8081";
+    private final String TYA_SERVER = "http://localhost:8081";
     private final RestTemplate restTemplate;
     
     public UserController() {
@@ -250,7 +250,7 @@ public class UserController {
             SesionDTO sesion = Model.getModel().getSessionByToken(token);
             int currentUserId = sesion.getUserId();
             UsuarioDTO user = Model.getModel().getUsuario(currentUserId);
-            if (user.getRelatedArtist() != null && getArtist(user.getRelatedArtist()) != null) {
+            if (user.getArtistId() != null && getArtist(user.getArtistId()) != null) {
                 return ResponseEntity.status(400).body(Response.getErrorResponse(400, "User is already linked to an artist."));
             }
 
@@ -260,7 +260,7 @@ public class UserController {
             }
 
             // Update user with new artist id
-            user.setRelatedArtist(returnedArtistId);
+            user.setArtistId(returnedArtistId);
             Model.getModel().updateUsuario(currentUserId, user);
             user.setPassword(null);
 

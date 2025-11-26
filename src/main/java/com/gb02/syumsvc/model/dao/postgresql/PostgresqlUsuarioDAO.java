@@ -1,6 +1,5 @@
 package com.gb02.syumsvc.model.dao.postgresql;
 
-import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -42,7 +41,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         
         // Handle nullable idArtista field
         Integer idArtista = (Integer) rset.getObject("idArtista");
-        usuario.setRelatedArtist(idArtista);
+        usuario.setArtistId(idArtista);
         
         // Handle nullable imagen field (bytea) - convert to Base64 String
         String imagen = rset.getString("imagen");
@@ -189,10 +188,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             ps.setString(4, usuario.getSecondLastName());
             ps.setString(5, usuario.getEmail());
             ps.setString(6, usuario.getPassword());
-            if (usuario.getRelatedArtist() == null) {
+            if (usuario.getArtistId() == null) {
                 ps.setNull(7, java.sql.Types.INTEGER);
             } else {
-                ps.setInt(7, usuario.getRelatedArtist());
+                ps.setInt(7, usuario.getArtistId());
             }
             if (usuario.getImage() == null) {
                 ps.setNull(8, java.sql.Types.VARCHAR);
@@ -252,10 +251,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             ps.setDate(5, usuario.getRegDate());
             ps.setString(6, usuario.getEmail());
             ps.setString(7, usuario.getPassword());
-            if (usuario.getRelatedArtist() == null) {
+            if (usuario.getArtistId() == null) {
                 ps.setNull(8, java.sql.Types.INTEGER);
             } else {
-                ps.setInt(8, usuario.getRelatedArtist());
+                ps.setInt(8, usuario.getArtistId());
             }
             if (usuario.getImage() == null) {
                 ps.setNull(9, java.sql.Types.VARCHAR);
