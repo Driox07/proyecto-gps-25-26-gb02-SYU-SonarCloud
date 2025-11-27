@@ -109,7 +109,7 @@ public class UserController {
             if (key.equals("password")) {
                 value = com.gb02.syumsvc.utils.SecureUtils.hashPassword((String) value);
             }
-            if (key.equals("image")){
+            if (key.equals("image") && value != null){
                 String b64 = (String) value;
                 String nick = changes.containsKey("username") ? (String) changes.get("username") : (String) baseUser.get("username");
                 String extension = Base64Img.saveB64(b64, nick);
@@ -152,8 +152,9 @@ public class UserController {
             }
             
             // Apply changes and update user
+            Map<String, Object> updatedData = applyUserChanges(requestedUser.toMap(), payload);
             UsuarioDTO updatedUser = new UsuarioDTO();
-            updatedUser.fromMap(applyUserChanges(requestedUser.toMap(), payload));
+            updatedUser.fromMap(updatedData);
 
             Model.getModel().updateUsuario(currentUserId, updatedUser);
             updatedUser.setPassword(null);
@@ -171,9 +172,11 @@ public class UserController {
             System.err.println("User not found during update: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
         } catch (UnexpectedErrorException e) {
+            e.printStackTrace();
             System.err.println("Unexpected error updating user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
         } catch (Exception e) {
+            e.printStackTrace();
             System.err.println("Unexpected error updating user: " + e.getMessage());
              
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));

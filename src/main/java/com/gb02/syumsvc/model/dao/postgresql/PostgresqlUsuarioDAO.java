@@ -38,12 +38,12 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
         usuario.setRegDate(rset.getDate("fechaReg"));
         usuario.setEmail(rset.getString("email"));
         usuario.setPassword(rset.getString("contrasena"));
+        usuario.setBio(rset.getString("biografia"));
         
         // Handle nullable idArtista field
         Integer idArtista = (Integer) rset.getObject("idArtista");
         usuario.setArtistId(idArtista);
         
-        // Handle nullable imagen field (bytea) - convert to Base64 String
         String imagen = rset.getString("imagen");
         if (imagen != null) {
             usuario.setImage(imagen);
@@ -180,7 +180,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
     @Override
     public int insertUsuario(UsuarioDTO usuario) throws UnexpectedErrorException, DupedUsernameException, DupedEmailException {
         try (Connection connection = PostgresqlConnector.getConnection()) {
-            String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista, imagen) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista, imagen, biografia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, usuario.getUsername());
             ps.setString(2, usuario.getName());
@@ -188,6 +188,7 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             ps.setString(4, usuario.getSecondLastName());
             ps.setString(5, usuario.getEmail());
             ps.setString(6, usuario.getPassword());
+            ps.setString(9, usuario.getBio());
             if (usuario.getArtistId() == null) {
                 ps.setNull(7, java.sql.Types.INTEGER);
             } else {
@@ -242,24 +243,24 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
     @Override
     public boolean modifyUsuario(int idUsuario, UsuarioDTO usuario) {
         try (Connection connection = PostgresqlConnector.getConnection()) {
-            String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, fechaReg = ?, email = ?, contrasena = ?, idArtista = ?, imagen = ? WHERE idUsuario = ?";
+            String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, email = ?, contrasena = ?, idArtista = ?, imagen = ?, biografia = ? WHERE idUsuario = ?";
             PreparedStatement ps = connection.prepareStatement(query);
             ps.setString(1, usuario.getUsername());
             ps.setString(2, usuario.getName());
             ps.setString(3, usuario.getFirstLastName());
             ps.setString(4, usuario.getSecondLastName());
-            ps.setDate(5, usuario.getRegDate());
-            ps.setString(6, usuario.getEmail());
-            ps.setString(7, usuario.getPassword());
+            ps.setString(5, usuario.getEmail());
+            ps.setString(6, usuario.getPassword());
+            ps.setString(9, usuario.getBio());
             if (usuario.getArtistId() == null) {
-                ps.setNull(8, java.sql.Types.INTEGER);
+                ps.setNull(7, java.sql.Types.INTEGER);
             } else {
-                ps.setInt(8, usuario.getArtistId());
+                ps.setInt(7, usuario.getArtistId());
             }
             if (usuario.getImage() == null) {
-                ps.setNull(9, java.sql.Types.VARCHAR);
+                ps.setNull(8, java.sql.Types.VARCHAR);
             } else {
-                ps.setString(9, usuario.getImage());
+                ps.setString(8, usuario.getImage());
             }
             ps.setInt(10, idUsuario);
             ps.executeUpdate();

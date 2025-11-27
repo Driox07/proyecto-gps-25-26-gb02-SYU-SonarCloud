@@ -3,6 +3,8 @@ package com.gb02.syumsvc.model.dto;
 import java.sql.Date;
 import java.util.Map;
 
+import com.gb02.syumsvc.utils.DateConverter;
+
 public class UsuarioDTO implements DTO {
     private Integer userId;
     private String username;
@@ -14,6 +16,7 @@ public class UsuarioDTO implements DTO {
     private String password;
     private Integer artistId;
     private String image;
+    private String bio;
 
     public Integer getUserId() {
         return userId;
@@ -94,7 +97,15 @@ public class UsuarioDTO implements DTO {
     public void setImage(String image) {
         this.image = image;
     }
+
+    public String getBio() {
+        return bio;
+    }
     
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
     @Override
     public Map<String, Object> toMap() {
         Map<String, Object> map = new java.util.HashMap<>();
@@ -108,6 +119,7 @@ public class UsuarioDTO implements DTO {
         map.put("password", this.password);
         map.put("artistId", this.artistId);
         map.put("image", this.image);
+        map.put("bio", this.bio);
         return map;
     }
 
@@ -118,10 +130,12 @@ public class UsuarioDTO implements DTO {
         name = map.get("name") != null ? (String) map.get("name") : null;
         firstLastName = map.get("firstLastName") != null ? (String) map.get("firstLastName") : null;
         secondLastName = map.get("secondLastName") != null ? (String) map.get("secondLastName") : null;
-        regDate = map.get("regDate") != null ? (Date) map.get("regDate") : null;
+        System.out.println("Reg date: " + map.get("regDate"));
+        regDate = map.get("regDate") != null ? DateConverter.string2sqlDate(map.get("regDate"))  : null;
         email = map.get("email") != null ? (String) map.get("email") : null;
         password = map.get("password") != null ? (String) map.get("password") : null;
         artistId = map.get("artistId") != null ? (Integer) map.get("artistId") : null;
         image = map.get("image") != null ? (String) map.get("image") : null;
+        bio = map.get("bio") != null ? (String) map.get("bio") : null;
     }
 }
