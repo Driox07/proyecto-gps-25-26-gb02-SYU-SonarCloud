@@ -24,7 +24,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         String[] origins;
         if (allowedOrigins == null || allowedOrigins.trim().isEmpty()) {
-            origins = new String[] {"http://localhost:8000", "http://localhost:8080", "http://127.0.0.1:8000", "http://127.0.0.1:8080"};
+            origins = new String[] {"http://localhost:8000", "http://localhost:8080", "http://127.0.0.1:8000", "http://127.0.0.1:8080", "http://10.1.1.2:8000", "http://10.1.1.2:8080"};
         } else {
             origins = allowedOrigins.split("\s*,\s*");
         }
