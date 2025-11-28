@@ -19,13 +19,17 @@ public class Base64Img {
 
     public static String changeNick(String oldImagePath, String newNick){
         String extension = oldImagePath.substring(oldImagePath.lastIndexOf('.') + 1);
-        java.nio.file.Path source = java.nio.file.Paths.get("src/main/resources/static" + oldImagePath);
+        // Si oldImagePath ya es una ruta relativa (/pfp/...), la convertimos a absoluta
+        String sourcePath = oldImagePath.startsWith("/") 
+            ? "src/main/resources/static" + oldImagePath 
+            : oldImagePath;
+        java.nio.file.Path source = java.nio.file.Paths.get(sourcePath);
         java.nio.file.Path target = java.nio.file.Paths.get("src/main/resources/static/pfp/" + newNick + "." + extension);
         try {
             java.nio.file.Files.move(source, target, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
-            return target.toString().replace("src/main/resources/static", "");
+            return "/pfp/" + newNick + "." + extension;
         } catch (java.io.IOException e) {
-            throw new UnexpectedErrorException("Error while trying to rename profile picture: " + e.getMessage());
+            throw new UnexpectedErrorException("Error while trying to rename profile picture: " + source.toString());
         }
     }
 }
