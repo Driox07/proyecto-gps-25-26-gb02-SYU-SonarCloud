@@ -211,6 +211,7 @@ public class UserController {
                     System.err.println("Failed to delete image file: " + e.getMessage());
                 }
             }
+            deleteArtist(currentUserId, sessionToken);
             return ResponseEntity.ok().body(Response.getOnlyMessage("User deleted successfully."));
         } catch (UserNotFoundException e) {
             System.err.println("User not found during deletion: " + e.getMessage());
