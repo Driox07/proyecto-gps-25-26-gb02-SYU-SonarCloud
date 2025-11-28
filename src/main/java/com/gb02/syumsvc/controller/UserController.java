@@ -202,6 +202,7 @@ public class UserController {
                 return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to delete this user."));
             }
             String img = requestedUser.getImage();
+            deleteArtist(requestedUser.getArtistId(), sessionToken);
             Model.getModel().deleteUsuario(requestedUser.getUserId());
             if (img != null && !img.isBlank()) {
                 java.nio.file.Path path = java.nio.file.Paths.get("src/main/resources/static" + img);
@@ -211,7 +212,6 @@ public class UserController {
                     System.err.println("Failed to delete image file: " + e.getMessage());
                 }
             }
-            deleteArtist(currentUserId, sessionToken);
             return ResponseEntity.ok().body(Response.getOnlyMessage("User deleted successfully."));
         } catch (UserNotFoundException e) {
             System.err.println("User not found during deletion: " + e.getMessage());
