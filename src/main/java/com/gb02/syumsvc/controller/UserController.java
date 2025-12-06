@@ -112,8 +112,9 @@ public class UserController {
             if (key.equals("image") && value != null){
                 String b64 = (String) value;
                 String nick = changes.containsKey("username") ? (String) changes.get("username") : (String) baseUser.get("username");
+                String sanitizedNick = Base64Img.sanitizeFilename(nick);
                 String extension = Base64Img.saveB64(b64, nick);
-                value = "/pfp/" + nick + "." + extension;
+                value = "/pfp/" + sanitizedNick + "." + extension;
             }
             if (key.equals("username")){
                 if(!UsernameChecker.isValidUsername((String)changes.get("username"))){
