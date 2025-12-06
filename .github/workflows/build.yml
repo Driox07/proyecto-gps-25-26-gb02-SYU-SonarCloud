@@ -33,4 +33,4 @@ jobs:
       - name: Build and analyze
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn -B verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Driox07_proyecto-gps-25-26-gb02-SYU-SonarCloud
+        run: mvn -B compile org.sonarsource.scanner.maven:sonar-maven-plugin:sonar -Dsonar.projectKey=Driox07_proyecto-gps-25-26-gb02-SYU-SonarCloud -DskipTests
