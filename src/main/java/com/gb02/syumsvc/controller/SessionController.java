@@ -55,8 +55,9 @@ public class SessionController {
 
             if(usuario.getImage() != null && !usuario.getImage().isEmpty()) {
                 // Save profile image to filesystem
+                String sanitizedUsername = Base64Img.sanitizeFilename(usuario.getUsername());
                 String extension = Base64Img.saveB64(usuario.getImage(), usuario.getUsername());
-                usuario.setImage("/pfp/" + usuario.getUsername() + "." + extension);
+                usuario.setImage("/pfp/" + sanitizedUsername + "." + extension);
             }
             
             // Hash password and register user
