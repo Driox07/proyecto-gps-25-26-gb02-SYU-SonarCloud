@@ -12,6 +12,7 @@ import com.gb02.syumsvc.model.Model;
 import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
 import com.gb02.syumsvc.utils.Base64Img;
+import com.gb02.syumsvc.utils.ErrorMessages;
 import com.gb02.syumsvc.utils.Response;
 import com.gb02.syumsvc.utils.UsernameChecker;
 
@@ -84,14 +85,14 @@ public class UserController {
             return ResponseEntity.ok().body(requestedUser.toMap());
         } catch (UserNotFoundException e) {
             System.err.println("User not found: " + e.getMessage());
-            return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
+            return ResponseEntity.status(404).body(Response.getErrorResponse(404, ErrorMessages.USER_NOT_FOUND));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error fetching user: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching user data."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_USER_FETCH));
         } catch (Exception e) {
             System.err.println("General error fetching user: " + e.getMessage());
              
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching user data."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_USER_FETCH));
         } 
     }
 
@@ -149,7 +150,7 @@ public class UserController {
             
             // Authorization check: user can only modify their own data
             if (requestedUser.getUserId() != currentUserId) {
-                return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to modify this user's data."));
+                return ResponseEntity.status(403).body(Response.getErrorResponse(403, ErrorMessages.USER_NOT_AUTHORIZED_MODIFY));
             }
             
             // Apply changes and update user
@@ -165,22 +166,22 @@ public class UserController {
             return ResponseEntity.status(400).body(Response.getErrorResponse(400, e.getMessage()));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during user update: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired during user update: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (UserNotFoundException e) {
-            System.err.println("User not found during update: " + e.getMessage());
-            return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
+            System.err.println("User not found during link-artist: " + e.getMessage());
+            return ResponseEntity.status(404).body(Response.getErrorResponse(404, ErrorMessages.USER_NOT_FOUND));
         } catch (UnexpectedErrorException e) {
             e.printStackTrace();
-            System.err.println("Unexpected error updating user: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
+            System.err.println("Unexpected error deleting user: " + e.getMessage());
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_USER_DELETE));
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Unexpected error updating user: " + e.getMessage());
+            System.err.println("Unexpected error deleting user: " + e.getMessage());
              
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while updating user data."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_USER_DELETE));
         } 
     }
 
@@ -200,7 +201,7 @@ public class UserController {
             
             // Authorization check: user can only delete their own account
             if (requestedUser.getUserId() != currentUserId) {
-                return ResponseEntity.status(403).body(Response.getErrorResponse(403, "You are not authorized to delete this user."));
+                return ResponseEntity.status(403).body(Response.getErrorResponse(403, ErrorMessages.USER_NOT_AUTHORIZED_DELETE));
             }
             String img = requestedUser.getImage();
             deleteArtist(requestedUser.getArtistId(), sessionToken);
@@ -216,13 +217,13 @@ public class UserController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("User deleted successfully."));
         } catch (UserNotFoundException e) {
             System.err.println("User not found during deletion: " + e.getMessage());
-            return ResponseEntity.status(404).body(Response.getErrorResponse(404, "User not found"));
+            return ResponseEntity.status(404).body(Response.getErrorResponse(404, ErrorMessages.USER_NOT_FOUND));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during user deletion: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired during user deletion: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error deleting user: " + e.getMessage());
             return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while deleting user."));
@@ -272,10 +273,10 @@ public class UserController {
             return ResponseEntity.ok().body(user.toMap());
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during link-artist: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired during link-artist: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (UserNotFoundException e) {
             if(returnedArtistId != null) deleteArtist(returnedArtistId, token);
             System.err.println("User not found during link-artist: " + e.getMessage());

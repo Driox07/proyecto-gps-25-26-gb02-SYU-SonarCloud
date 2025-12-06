@@ -21,6 +21,7 @@ import com.gb02.syumsvc.model.Model;
 import com.gb02.syumsvc.model.dto.SesionDTO;
 import com.gb02.syumsvc.model.dto.UsuarioDTO;
 import com.gb02.syumsvc.utils.Base64Img;
+import com.gb02.syumsvc.utils.ErrorMessages;
 import com.gb02.syumsvc.utils.Response;
 import com.gb02.syumsvc.utils.SecureUtils;
 import com.gb02.syumsvc.utils.UsernameChecker;
@@ -82,13 +83,13 @@ public class SessionController {
             return ResponseEntity.status(400).body(Response.getErrorResponse(400, e.getMessage()));
         } catch (DupedEmailException e) {
             System.err.println("Duped email during registration: " + e.getMessage());
-            return ResponseEntity.badRequest().body(Response.getErrorResponse(400, "This email is already registered."));
+            return ResponseEntity.badRequest().body(Response.getErrorResponse(400, ErrorMessages.EMAIL_ALREADY_REGISTERED));
         } catch (DupedUsernameException e) {
             System.err.println("Duped username during registration: " + e.getMessage());
-            return ResponseEntity.status(409).body(Response.getErrorResponse(409, "This username is already registered."));
+            return ResponseEntity.status(409).body(Response.getErrorResponse(409, ErrorMessages.USERNAME_ALREADY_REGISTERED));
         } catch (Exception e) {
             System.err.println("Unexpected error during registration: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during registration."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_REGISTRATION));
         }
     }
 
@@ -155,7 +156,7 @@ public class SessionController {
         try {
             SesionDTO sesion = Model.getModel().getSessionByToken(token);
             if (sesion == null) {
-                return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+                return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
             }
             
             UsuarioDTO usuario = Model.getModel().getUsuario(sesion.getUserId());
@@ -163,17 +164,17 @@ public class SessionController {
             return ResponseEntity.ok().body(usuario.toMap());
         } catch (SessionExpiredException e) {
             System.err.println("Session expired during authentication: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during authentication: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error during authentication: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during authentication."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_AUTHENTICATION));
         } catch (Exception e) {
             System.err.println("Unexpected error during authentication: " + e.getMessage());
              
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during authentication."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_AUTHENTICATION));
         }
     }
 
@@ -188,21 +189,21 @@ public class SessionController {
         try {
             SesionDTO sesion = Model.getModel().getSessionByToken(token);
             if (sesion == null) {
-                return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+                return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
             }
             
             Model.getModel().deleteSesion(sesion.getId());
             return ResponseEntity.ok().body(Response.getOnlyMessage("Logged out successfully"));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found during logout: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error during logout: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during logout."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_LOGOUT));
         } catch (Exception e) {
             System.err.println("Unexpected error during logout: " + e.getMessage());
              
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "An unknown error occurred during logout."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_LOGOUT));
         }
     }
 }
