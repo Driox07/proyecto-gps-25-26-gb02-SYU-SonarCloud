@@ -65,9 +65,10 @@ public class PostgresqlSesionDAO implements SesionDAO {
      */
     @Override
     public SesionDTO obtainSesion(int idSesion) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Sesiones WHERE idSesion = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idSesion);
             ResultSet rset = ps.executeQuery();
             if (rset.next()) {
@@ -80,6 +81,14 @@ public class PostgresqlSesionDAO implements SesionDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return null;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -97,9 +106,10 @@ public class PostgresqlSesionDAO implements SesionDAO {
             throw new SessionNotFoundException("Session token is null");
         }
         
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Sesiones WHERE token = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setString(1, token);
             ResultSet rset = ps.executeQuery();
             if (rset.next()) {
@@ -114,6 +124,14 @@ public class PostgresqlSesionDAO implements SesionDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error obtaining session by token: " + token);
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -126,9 +144,10 @@ public class PostgresqlSesionDAO implements SesionDAO {
      */
     @Override
     public boolean insertSesion(SesionDTO sesion) throws UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "INSERT INTO Sesiones (token, fechaValidez, idUsuario) VALUES (?, ?, ?)";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setString(1, sesion.getToken());
             ps.setDate(2, sesion.getExpirationDate());
             ps.setInt(3, sesion.getUserId());
@@ -142,6 +161,14 @@ public class PostgresqlSesionDAO implements SesionDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Error creating a session for user " + sesion.getUserId());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -169,9 +196,10 @@ public class PostgresqlSesionDAO implements SesionDAO {
      */
     @Override
     public boolean deleteSesion(int idSesion) throws SessionNotFoundException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "DELETE FROM Sesiones WHERE idSesion = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idSesion);
             int rowsAffected = ps.executeUpdate();
             if (rowsAffected == 0) {
@@ -185,6 +213,14 @@ public class PostgresqlSesionDAO implements SesionDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error deleting session with id: " + idSesion);
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 }

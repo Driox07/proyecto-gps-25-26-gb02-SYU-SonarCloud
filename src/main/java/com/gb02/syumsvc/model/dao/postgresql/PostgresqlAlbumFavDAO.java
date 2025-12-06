@@ -21,9 +21,10 @@ import com.gb02.syumsvc.model.dto.AlbumFavDTO;
 public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
     @Override
     public AlbumFavDTO[] obtainAlbumFavByUser(int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM AlbumesFav WHERE idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
             ArrayList<AlbumFavDTO> results = new ArrayList<>();
@@ -39,14 +40,23 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return new AlbumFavDTO[0];
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public AlbumFavDTO[] obtainAlbumFavByAlbum(int idAlbum) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM AlbumesFav WHERE idAlbum = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idAlbum);
             ResultSet rset = ps.executeQuery();
             ArrayList<AlbumFavDTO> results = new ArrayList<>();
@@ -62,6 +72,14 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return new AlbumFavDTO[0];
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -89,9 +107,10 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
 
     @Override
     public AlbumFavDTO obtainAlbumFav(int idAlbum, int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM AlbumesFav WHERE idAlbum = ? AND idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idAlbum);
             ps.setInt(2, idUsuario);
             ResultSet rset = ps.executeQuery();
@@ -107,14 +126,23 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return null;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public boolean insertAlbumFav(AlbumFavDTO albumFav) throws FavAlreadyExistsException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "INSERT INTO AlbumesFav (idAlbum, idUsuario) VALUES (?, ?)";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, albumFav.getIdAlbum());
             ps.setInt(2, albumFav.getIdUsuario());
             int rows = ps.executeUpdate();
@@ -134,14 +162,23 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error inserting album fav: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public boolean deleteAlbumFav(int idAlbum, int idUsuario) throws FavNotFoundException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "DELETE FROM AlbumesFav WHERE idAlbum = ? AND idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idAlbum);
             ps.setInt(2, idUsuario);
             int rows = ps.executeUpdate();
@@ -156,6 +193,14 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error deleting album fav: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 }
