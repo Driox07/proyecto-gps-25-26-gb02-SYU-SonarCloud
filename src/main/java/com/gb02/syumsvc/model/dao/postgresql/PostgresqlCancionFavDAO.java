@@ -103,9 +103,10 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
      */
     @Override
     public CancionFavDTO[] obtainCancionFav() {
+        Statement s = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM CancionesFav";
-            Statement s = connection.createStatement();
+            s = connection.createStatement();
             ResultSet rset = s.executeQuery(query);
             ArrayList<CancionFavDTO> results = new ArrayList<>();
             while (rset.next()) {
@@ -120,6 +121,14 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             return new CancionFavDTO[0];
+        }finally{
+            if(s != null){
+                try{
+                    s.close();
+                }catch(Exception e){
+                    System.err.println("Error closing Statement: " + e.getMessage());
+                }
+            }
         }
     }
 

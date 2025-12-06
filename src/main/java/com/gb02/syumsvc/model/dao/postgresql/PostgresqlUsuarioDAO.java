@@ -61,9 +61,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO[] obtainUsuarios() {
+        Statement statement = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Usuarios";
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             ResultSet rset = statement.executeQuery(query);
             ArrayList<UsuarioDTO> results = new ArrayList<>();
             while (rset.next()) {
@@ -75,6 +76,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return new UsuarioDTO[0];
+        }finally{
+            if(statement != null){
+                try{
+                    statement.close();
+                }catch(Exception e){
+                    System.err.println("Error closing Statement: " + e.getMessage());
+                }
+            }
         }
     }
 
