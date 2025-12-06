@@ -75,9 +75,10 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO[] obtainMerchFav() {
+        Statement s = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM MerchFav";
-            Statement s = connection.createStatement();
+            s = connection.createStatement();
             ResultSet rset = s.executeQuery(query);
             ArrayList<MerchFavDTO> results = new ArrayList<>();
             while(rset.next()){
@@ -91,6 +92,14 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             System.err.println("Error obtaining all merch fav (PostgresqlMerchFavDAO)");
             System.err.println("Reason: " + e.getMessage());
             return new MerchFavDTO[0];
+        }finally{
+            if(s != null){
+                try{
+                    s.close();
+                }catch(Exception e){
+                    System.err.println("Error closing Statement: " + e.getMessage());
+                }
+            }
         }
     }
 

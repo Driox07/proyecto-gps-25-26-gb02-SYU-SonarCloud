@@ -85,9 +85,10 @@ public class PostgresqlArtistaFavDAO implements ArtistaFavDAO {
 
     @Override
     public ArtistaFavDTO[] obtainArtistaFav() {
+        Statement s = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM ArtistasFav";
-            Statement s = connection.createStatement();
+            s = connection.createStatement();
             ResultSet rset = s.executeQuery(query);
             ArrayList<ArtistaFavDTO> results = new ArrayList<>();
             while (rset.next()) {
@@ -102,6 +103,14 @@ public class PostgresqlArtistaFavDAO implements ArtistaFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             return new ArtistaFavDTO[0];
+        }finally{
+            if(s != null){
+                try{
+                    s.close();
+                }catch(Exception e){
+                    System.err.println("Error closing Statement: " + e.getMessage());
+                }
+            }
         }
     }
 

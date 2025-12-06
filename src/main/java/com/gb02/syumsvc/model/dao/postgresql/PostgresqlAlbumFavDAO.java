@@ -85,9 +85,10 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
 
     @Override
     public AlbumFavDTO[] obtainAlbumFav() {
+        Statement s = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM AlbumesFav";
-            Statement s = connection.createStatement();
+            s = connection.createStatement();
             ResultSet rset = s.executeQuery(query);
             ArrayList<AlbumFavDTO> results = new ArrayList<>();
             while (rset.next()) {
@@ -102,6 +103,14 @@ public class PostgresqlAlbumFavDAO implements AlbumFavDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return new AlbumFavDTO[0];
+        }finally{
+            if(s != null){
+                try{
+                    s.close();
+                }catch(Exception e){
+                    System.err.println("Error closing Statement: " + e.getMessage());
+                }
+            }
         }
     }
 

@@ -40,9 +40,10 @@ public class PostgresqlSesionDAO implements SesionDAO {
      */
     @Override
     public SesionDTO[] obtainSesiones() {
+        Statement statement = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Sesiones";
-            Statement statement = connection.createStatement();
+            statement = connection.createStatement();
             ResultSet rset = statement.executeQuery(query);
             ArrayList<SesionDTO> results = new ArrayList<>();
             while (rset.next()) {
@@ -54,6 +55,14 @@ public class PostgresqlSesionDAO implements SesionDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return new SesionDTO[0];
+        }finally{
+            if(statement != null){
+                try{
+                    statement.close();
+                }catch(Exception e){
+                    System.err.println("Error closing Statement: " + e.getMessage());
+                }
+            }
         }
     }
 
