@@ -13,9 +13,10 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO[] obtainMerchFavByUser(int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM MerchFav WHERE idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
             ArrayList<MerchFavDTO> results = new ArrayList<>();
@@ -30,14 +31,23 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             System.err.println("Error obtaining merch fav by idUsuario (PostgresqlMerchFavDAO)");
             System.err.println("Reason: " + e.getMessage());
             return new MerchFavDTO[0];
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public MerchFavDTO[] obtainMerchFavByMerch(int idMerch) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM MerchFav WHERE idMerch = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idMerch);
             ResultSet rset = ps.executeQuery();
             ArrayList<MerchFavDTO> results = new ArrayList<>();
@@ -52,6 +62,14 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             System.err.println("Error obtaining merch fav by idMerch (PostgresqlMerchFavDAO)");
             System.err.println("Reason: " + e.getMessage());
             return new MerchFavDTO[0];
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -78,9 +96,10 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
 
     @Override
     public MerchFavDTO obtainMerchFav(int idMerch, int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM MerchFav WHERE idMerch = ? AND idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idMerch);
             ps.setInt(2, idUsuario);
             ResultSet rset = ps.executeQuery();
@@ -95,15 +114,24 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             System.err.println("Error obtaining merch fav by idMerch (PostgresqlMerchFavDAO)");
             System.err.println("Reason: " + e.getMessage());
             return null;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public boolean insertMerchFav(MerchFavDTO merchFav) {
         // TODO: Comprobación de integridad. ¿Existe el merch en el micro servicio TPP?
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "INSERT INTO MerchFav VALUES (?, ?)";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, merchFav.getIdMerch());
             ps.setInt(2, merchFav.getIdUsuario());
             if(ps.executeUpdate() == 0) return false;
@@ -112,14 +140,23 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             System.err.println("Error obtaining merch fav by idMerch (PostgresqlMerchFavDAO)");
             System.err.println("Reason: " + e.getMessage());
             return false;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
     @Override
     public boolean deleteMerchFav(int idMerch, int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "DELETE FROM MerchFav WHERE idMerch = ? AND idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idMerch);
             ps.setInt(2, idUsuario);
             if(ps.executeUpdate() == 0) return false;
@@ -128,6 +165,14 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             System.err.println("Error obtaining merch fav by idMerch (PostgresqlMerchFavDAO)");
             System.err.println("Reason: " + e.getMessage());
             return false;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
     

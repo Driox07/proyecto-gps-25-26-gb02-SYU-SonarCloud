@@ -28,9 +28,10 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
      */
     @Override
     public CancionFavDTO[] obtainCancionFavByUser(int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM CancionesFav WHERE idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
             ArrayList<CancionFavDTO> results = new ArrayList<>();
@@ -46,6 +47,14 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             return new CancionFavDTO[0];
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -57,9 +66,10 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
      */
     @Override
     public CancionFavDTO[] obtainCancionFavByCancion(int idCancion) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM CancionesFav WHERE idCancion = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idCancion);
             ResultSet rset = ps.executeQuery();
             ArrayList<CancionFavDTO> results = new ArrayList<>();
@@ -75,6 +85,14 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             return new CancionFavDTO[0];
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -114,9 +132,10 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
      */
     @Override
     public CancionFavDTO obtainCancionFav(int idCancion, int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM CancionesFav WHERE idCancion = ? AND idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idCancion);
             ps.setInt(2, idUsuario);
             ResultSet rset = ps.executeQuery();
@@ -132,6 +151,14 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             return null;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -145,9 +172,10 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
      */
     @Override
     public boolean insertCancionFav(CancionFavDTO cancionFav) throws FavAlreadyExistsException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "INSERT INTO CancionesFav (idCancion, idUsuario) VALUES (?, ?)";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, cancionFav.getIdCancion());
             ps.setInt(2, cancionFav.getIdUsuario());
             int rows = ps.executeUpdate();
@@ -168,6 +196,14 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             throw new UnexpectedErrorException("Unexpected error inserting cancion fav: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -182,9 +218,10 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
      */
     @Override
     public boolean deleteCancionFav(int idCancion, int idUsuario) throws FavNotFoundException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "DELETE FROM CancionesFav WHERE idCancion = ? AND idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idCancion);
             ps.setInt(2, idUsuario);
             int rows = ps.executeUpdate();
@@ -199,6 +236,14 @@ public class PostgresqlCancionFavDAO implements CancionFavDAO {
             System.err.println("Reason: " + e.getMessage());
              
             throw new UnexpectedErrorException("Unexpected error deleting cancion fav: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 }

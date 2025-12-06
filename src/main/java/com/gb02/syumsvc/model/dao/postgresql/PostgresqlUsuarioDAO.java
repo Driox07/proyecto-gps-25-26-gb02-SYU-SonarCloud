@@ -88,9 +88,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO obtainUsuario(int idUsuario) throws UserNotFoundException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Usuarios WHERE idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             ResultSet rset = ps.executeQuery();
             if (rset.next()) {
@@ -105,6 +106,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -118,9 +127,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO obtainUsuarioByNick(String nick) throws UserNotFoundException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Usuarios WHERE nick = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setString(1, nick);
             ResultSet rset = ps.executeQuery();
             if (rset.next()) {
@@ -135,6 +145,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -148,9 +166,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public UsuarioDTO obtainUsuarioByMail(String mail) throws UserNotFoundException, UnexpectedErrorException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "SELECT * FROM Usuarios WHERE email = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setString(1, mail);
             ResultSet rset = ps.executeQuery();
             if (rset.next()) {
@@ -165,6 +184,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error obtaining usuario: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -179,9 +206,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public int insertUsuario(UsuarioDTO usuario) throws UnexpectedErrorException, DupedUsernameException, DupedEmailException {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "INSERT INTO Usuarios (nick, nombre, apellido1, apellido2, email, contrasena, idArtista, imagen, biografia) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-            PreparedStatement ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+            ps = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
             ps.setString(1, usuario.getUsername());
             ps.setString(2, usuario.getName());
             ps.setString(3, usuario.getFirstLastName());
@@ -230,6 +258,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error inserting usuario: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -242,9 +278,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public boolean modifyUsuario(int idUsuario, UsuarioDTO usuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "UPDATE Usuarios SET nick = ?, nombre = ?, apellido1 = ?, apellido2 = ?, email = ?, contrasena = ?, idArtista = ?, imagen = ?, biografia = ? WHERE idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setString(1, usuario.getUsername());
             ps.setString(2, usuario.getName());
             ps.setString(3, usuario.getFirstLastName());
@@ -270,6 +307,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             return false;
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 
@@ -283,9 +328,10 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
      */
     @Override
     public boolean deleteUsuario(int idUsuario) {
+        PreparedStatement ps = null;
         try (Connection connection = PostgresqlConnector.getConnection()) {
             String query = "DELETE FROM Usuarios WHERE idUsuario = ?";
-            PreparedStatement ps = connection.prepareStatement(query);
+            ps = connection.prepareStatement(query);
             ps.setInt(1, idUsuario);
             int rows = ps.executeUpdate();
             if (rows != 1) {
@@ -297,6 +343,14 @@ public class PostgresqlUsuarioDAO implements UsuarioDAO {
             System.err.println("Reason: " + e.getMessage());
             
             throw new UnexpectedErrorException("Unexpected error deleting usuario: " + e.getMessage());
+        }finally{
+            if(ps != null){
+                try{
+                    ps.close();
+                }catch(Exception e){
+                    System.err.println("Error closing PreparedStatement: " + e.getMessage());
+                }
+            }
         }
     }
 }
