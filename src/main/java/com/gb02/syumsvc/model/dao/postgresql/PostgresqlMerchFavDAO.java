@@ -22,8 +22,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             ArrayList<MerchFavDTO> results = new ArrayList<>();
             while(rset.next()){
                 MerchFavDTO mf = new MerchFavDTO();
-                mf.setIdMerch(rset.getInt(0));
-                mf.setIdUsuario(rset.getInt(1));
+                mf.setIdMerch(rset.getInt(1));
+                mf.setIdUsuario(rset.getInt(2));
                 results.add(mf);
             }        
             return results.toArray(new MerchFavDTO[results.size()]);
@@ -53,8 +53,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             ArrayList<MerchFavDTO> results = new ArrayList<>();
             while(rset.next()){
                 MerchFavDTO mf = new MerchFavDTO();
-                mf.setIdMerch(rset.getInt(0));
-                mf.setIdUsuario(rset.getInt(1));
+                mf.setIdMerch(rset.getInt(1));
+                mf.setIdUsuario(rset.getInt(2));
                 results.add(mf);
             }        
             return results.toArray(new MerchFavDTO[results.size()]);
@@ -83,8 +83,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             ArrayList<MerchFavDTO> results = new ArrayList<>();
             while(rset.next()){
                 MerchFavDTO mf = new MerchFavDTO();
-                mf.setIdMerch(rset.getInt(0));
-                mf.setIdUsuario(rset.getInt(1));
+                mf.setIdMerch(rset.getInt(1));
+                mf.setIdUsuario(rset.getInt(2));
                 results.add(mf);
             }        
             return results.toArray(new MerchFavDTO[results.size()]);
@@ -114,8 +114,8 @@ public class PostgresqlMerchFavDAO implements MerchFavDAO {
             ResultSet rset = ps.executeQuery();
             if(rset.next()){
                 MerchFavDTO mf = new MerchFavDTO();
-                mf.setIdMerch(rset.getInt(0));
-                mf.setIdUsuario(rset.getInt(1));
+                mf.setIdMerch(rset.getInt(1));
+                mf.setIdUsuario(rset.getInt(2));
                 return mf;
             }        
             return null;
