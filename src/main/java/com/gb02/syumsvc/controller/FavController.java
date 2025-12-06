@@ -22,6 +22,7 @@ import com.gb02.syumsvc.model.dto.AlbumFavDTO;
 import com.gb02.syumsvc.model.dto.ArtistaFavDTO;
 import com.gb02.syumsvc.model.dto.CancionFavDTO;
 import com.gb02.syumsvc.model.dto.SesionDTO;
+import com.gb02.syumsvc.utils.ErrorMessages;
 import com.gb02.syumsvc.utils.Response;
 
 /**
@@ -60,17 +61,17 @@ public class FavController {
             return ResponseEntity.ok().body(songIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite songs: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while fetching favorite songs: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error fetching favorite songs: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching favorite songs."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_GET_FAVORITES));
         } catch (Exception e) {
             System.err.println("General error fetching favorite songs: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching favorite songs."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_GET_FAVORITES));
         }
     }
 
@@ -97,20 +98,20 @@ public class FavController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("Song added to favorites successfully."));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while adding favorite song: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while adding favorite song: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (FavAlreadyExistsException e) {
             System.err.println("Favorite song already exists: " + e.getMessage());
             return ResponseEntity.status(409).body(Response.getErrorResponse(409, "Song is already in favorites."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error adding favorite song: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while adding favorite song."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_ADD_FAVORITE));
         } catch (Exception e) {
             System.err.println("General error adding favorite song: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while adding favorite song."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_ADD_FAVORITE));
         }
     }
 
@@ -134,20 +135,20 @@ public class FavController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("Song removed from favorites successfully."));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while removing favorite song: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while removing favorite song: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (FavNotFoundException e) {
             System.err.println("Favorite song not found: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "Song is not in favorites."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error removing favorite song: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while removing favorite song."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_DELETE_FAVORITE));
         } catch (Exception e) {
             System.err.println("General error removing favorite song: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while removing favorite song."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_DELETE_FAVORITE));
         }
     }
 
@@ -180,17 +181,17 @@ public class FavController {
             return ResponseEntity.ok().body(artistIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite artists: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while fetching favorite artists: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error fetching favorite artists: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching favorite artists."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_GET_FAVORITES));
         } catch (Exception e) {
             System.err.println("General error fetching favorite artists: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching favorite artists."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_GET_FAVORITES));
         }
     }
 
@@ -217,20 +218,20 @@ public class FavController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("Artist added to favorites successfully."));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while adding favorite artist: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while adding favorite artist: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (FavAlreadyExistsException e) {
             System.err.println("Favorite artist already exists: " + e.getMessage());
             return ResponseEntity.status(409).body(Response.getErrorResponse(409, "Artist is already in favorites."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error adding favorite artist: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while adding favorite artist."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_ADD_FAVORITE));
         } catch (Exception e) {
             System.err.println("General error adding favorite artist: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while adding favorite artist."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_ADD_FAVORITE));
         }
     }
 
@@ -254,20 +255,20 @@ public class FavController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("Artist removed from favorites successfully."));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while removing favorite artist: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while removing favorite artist: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (FavNotFoundException e) {
             System.err.println("Favorite artist not found: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "Artist is not in favorites."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error removing favorite artist: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while removing favorite artist."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_DELETE_FAVORITE));
         } catch (Exception e) {
             System.err.println("General error removing favorite artist: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while removing favorite artist."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_DELETE_FAVORITE));
         }
     }
 
@@ -300,17 +301,17 @@ public class FavController {
             return ResponseEntity.ok().body(albumIds);
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while fetching favorite albums: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while fetching favorite albums: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error fetching favorite albums: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching favorite albums."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_GET_FAVORITES));
         } catch (Exception e) {
             System.err.println("General error fetching favorite albums: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while fetching favorite albums."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_GET_FAVORITES));
         }
     }
 
@@ -337,20 +338,20 @@ public class FavController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("Album added to favorites successfully."));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while adding favorite album: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while adding favorite album: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (FavAlreadyExistsException e) {
             System.err.println("Favorite album already exists: " + e.getMessage());
             return ResponseEntity.status(409).body(Response.getErrorResponse(409, "Album is already in favorites."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error adding favorite album: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while adding favorite album."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_ADD_FAVORITE));
         } catch (Exception e) {
             System.err.println("General error adding favorite album: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while adding favorite album."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_ADD_FAVORITE));
         }
     }
 
@@ -374,20 +375,20 @@ public class FavController {
             return ResponseEntity.ok().body(Response.getOnlyMessage("Album removed from favorites successfully."));
         } catch (SessionNotFoundException e) {
             System.err.println("Session not found while removing favorite album: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Invalid session token."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.INVALID_SESSION_TOKEN));
         } catch (SessionExpiredException e) {
             System.err.println("Session expired while removing favorite album: " + e.getMessage());
-            return ResponseEntity.status(401).body(Response.getErrorResponse(401, "Session has expired."));
+            return ResponseEntity.status(401).body(Response.getErrorResponse(401, ErrorMessages.SESSION_EXPIRED));
         } catch (FavNotFoundException e) {
             System.err.println("Favorite album not found: " + e.getMessage());
             return ResponseEntity.status(404).body(Response.getErrorResponse(404, "Album is not in favorites."));
         } catch (UnexpectedErrorException e) {
             System.err.println("Unexpected error removing favorite album: " + e.getMessage());
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while removing favorite album."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_DELETE_FAVORITE));
         } catch (Exception e) {
             System.err.println("General error removing favorite album: " + e.getMessage());
             
-            return ResponseEntity.status(500).body(Response.getErrorResponse(500, "Unexpected error occurred while removing favorite album."));
+            return ResponseEntity.status(500).body(Response.getErrorResponse(500, ErrorMessages.UNEXPECTED_ERROR_DELETE_FAVORITE));
         }
     }
 }
